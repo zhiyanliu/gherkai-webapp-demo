@@ -93,6 +93,10 @@
     <audio id="voice-wrong" src="assets/audio/m3zr2KLHUcv3uu9Bj4YKMQ.mp3"></audio>
     <audio id="voice-end" src="assets/audio/mYBcpEv2SrGG7Lk5wcTB9U.mp3"></audio>
 
+    <!-- 语言切换：右上角，按钮上显示的是切换目标语言的名字 -->
+    <button id="lang-toggle" type="button" aria-label="切换语言 / Switch language"
+            class="absolute top-4 right-4 z-20 px-4 py-2 rounded-full bg-white/90 text-wood font-bold shadow-md hover:bg-white transition-colors btn-press">EN</button>
+
     <!-- 页面容器 -->
     <main id="app" class="relative z-10 w-full max-w-4xl h-full flex flex-col items-center justify-center p-4">
         
@@ -103,7 +107,7 @@
                 <img src="assets/img/Txyvt8YtwwUSUPPwCeYhaA.jpg" 
                      class="w-full h-full object-contain" alt="标题牌">
                 <div class="absolute inset-0 flex items-center justify-center pt-4">
-                    <h1 class="text-4xl font-bold text-white wood-text tracking-wider">识字大挑战</h1>
+                    <h1 data-i18n="homeTitle" class="text-4xl font-bold text-white wood-text tracking-wider">识字大挑战</h1>
                 </div>
             </div>
 
@@ -111,7 +115,7 @@
             <button id="start-btn" class="relative w-64 h-20 transition-transform hover:scale-105 btn-press group">
                 <img src="assets/img/X2cbmeAejbANSkJKbhfgNX.jpg" 
                      class="w-full h-full object-contain drop-shadow-xl" alt="开始按钮">
-                <span class="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white drop-shadow-md pt-1">
+                <span data-i18n="start" class="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white drop-shadow-md pt-1">
                     开始挑战
                 </span>
             </button>
@@ -120,11 +124,11 @@
         <!-- 2. 选关页 -->
         <section id="level-screen" class="hidden w-full max-w-2xl">
             <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl">
-                <h2 class="text-3xl font-bold text-wood text-center mb-6">选择关卡</h2>
+                <h2 data-i18n="chooseLevel" class="text-3xl font-bold text-wood text-center mb-6">选择关卡</h2>
                 <div id="level-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <!-- 关卡按钮由JS生成 -->
                 </div>
-                <button id="back-home-btn" class="mt-6 w-full py-3 bg-gray-400 text-white rounded-xl font-bold hover:bg-gray-500 transition-colors">
+                <button id="back-home-btn" data-i18n="backHome" class="mt-6 w-full py-3 bg-gray-400 text-white rounded-xl font-bold hover:bg-gray-500 transition-colors">
                     返回主页
                 </button>
             </div>
@@ -170,7 +174,7 @@
         <!-- 4. 结算页 -->
         <section id="result-screen" class="hidden w-full max-w-md text-center">
             <div class="glass rounded-3xl p-8 shadow-2xl transform scale-0 opacity-0" id="result-card">
-                <h2 class="text-3xl font-bold text-wood mb-4">挑战完成！</h2>
+                <h2 data-i18n="resultTitle" class="text-3xl font-bold text-wood mb-4">挑战完成！</h2>
                 
                 <div class="flex justify-center items-center gap-2 mb-6">
                     <img src="assets/img/5N3YzVzcFSTNu22fH76UoJ.jpg" class="w-16 h-16 animate-bounce">
@@ -180,10 +184,10 @@
                 <p id="result-msg" class="text-xl text-gray-600 mb-8 font-bold">太棒了！</p>
 
                 <div class="flex flex-col gap-3">
-                    <button id="replay-btn" class="w-full py-4 bg-leaf text-white rounded-xl text-xl font-bold shadow-lg hover:bg-green-600 transition-colors">
+                    <button id="replay-btn" data-i18n="replay" class="w-full py-4 bg-leaf text-white rounded-xl text-xl font-bold shadow-lg hover:bg-green-600 transition-colors">
                         再玩一次
                     </button>
-                    <button id="home-btn" class="w-full py-4 bg-secondary text-white rounded-xl text-xl font-bold shadow-lg hover:bg-teal-500 transition-colors">
+                    <button id="home-btn" data-i18n="backHome" class="w-full py-4 bg-secondary text-white rounded-xl text-xl font-bold shadow-lg hover:bg-teal-500 transition-colors">
                         返回主页
                     </button>
                 </div>
@@ -196,6 +200,64 @@
     <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none z-50"></canvas>
 
     <script type="module">
+        // --- 界面语言（题目内容——汉字与拼音——不随语言变）---
+        // 启动时读 URL 的 ?lang=zh|en（缺省 zh）；右上角按钮可随时切换，切换写回 URL，刷新后保持。
+        const I18N = {
+            zh: {
+                htmlLang: 'zh-CN',
+                title: '识字大挑战 - 二年级上册',
+                homeTitle: '识字大挑战',
+                start: '开始挑战',
+                chooseLevel: '选择关卡',
+                levelName: (n) => `第 ${n} 组`,
+                levelSub: (count) => `${count} 个生字`,
+                backHome: '返回主页',
+                resultTitle: '挑战完成！',
+                replay: '再玩一次',
+                msgPerfect: '太厉害了！全对！🌟',
+                msgGood: '真棒！继续加油！✨',
+                msgTryAgain: '再接再厉哦！💪',
+                toggleLabel: 'EN'
+            },
+            en: {
+                htmlLang: 'en',
+                title: 'Character Challenge - Grade 2, Volume 1',
+                homeTitle: 'Character Challenge',
+                start: 'Start Challenge',
+                chooseLevel: 'Choose a Level',
+                levelName: (n) => `Group ${n}`,
+                levelSub: (count) => `${count} characters`,
+                backHome: 'Back to Home',
+                resultTitle: 'Challenge Complete!',
+                replay: 'Play Again',
+                msgPerfect: 'Amazing! All correct! 🌟',
+                msgGood: 'Great job! Keep it up! ✨',
+                msgTryAgain: 'Keep trying! 💪',
+                toggleLabel: '中文'
+            }
+        };
+        let LANG = new URLSearchParams(location.search).get('lang') === 'en' ? 'en' : 'zh';
+        function t(key, ...args) {
+            const v = I18N[LANG][key];
+            return typeof v === 'function' ? v(...args) : v;
+        }
+        function applyLanguage() {
+            document.documentElement.lang = t('htmlLang');
+            document.documentElement.dataset.lang = LANG;
+            document.title = t('title');
+            document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+            document.getElementById('lang-toggle').textContent = t('toggleLabel');
+            if (STATE.groups.length) renderLevelScreen();
+            if (STATE.resultKey) document.getElementById('result-msg').textContent = t(STATE.resultKey);
+        }
+        function setLanguage(lang) {
+            LANG = lang === 'en' ? 'en' : 'zh';
+            const url = new URL(location.href);
+            url.searchParams.set('lang', LANG);
+            history.replaceState(null, '', url);
+            applyLanguage();
+        }
+
         // --- 数据准备 ---
         // 统编版二年级上册生字表（部分示例数据，实际应包含更多）
         const VOCABULARY = [
@@ -235,7 +297,8 @@
             currentQuestions: [],
             currentQIndex: 0,
             score: 0,
-            isAnswering: false
+            isAnswering: false,
+            resultKey: null
         };
 
         // --- DOM 元素 ---
@@ -299,7 +362,7 @@
             STATE.groups.forEach((group, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'bg-white/90 hover:bg-white text-wood font-bold py-4 px-2 rounded-xl shadow-md transition-all hover:-translate-y-1 border-2 border-wood/20';
-                btn.innerHTML = `<div class="text-xl">第 ${index + 1} 组</div><div class="text-sm text-gray-500 mt-1">${group.length} 个生字</div>`;
+                btn.innerHTML = `<div class="text-xl">${t('levelName', index + 1)}</div><div class="text-sm text-gray-500 mt-1">${t('levelSub', group.length)}</div>`;
                 btn.onclick = () => startGame(index);
                 grid.appendChild(btn);
             });
@@ -424,12 +487,13 @@
             const msgEl = document.getElementById('result-msg');
             
             if (STATE.score === total) {
-                msgEl.textContent = "太厉害了！全对！🌟";
+                STATE.resultKey = 'msgPerfect';
             } else if (STATE.score >= total * 0.8) {
-                msgEl.textContent = "真棒！继续加油！✨";
+                STATE.resultKey = 'msgGood';
             } else {
-                msgEl.textContent = "再接再厉哦！💪";
+                STATE.resultKey = 'msgTryAgain';
             }
+            msgEl.textContent = t(STATE.resultKey);
 
             audios.end.play();
 
@@ -461,15 +525,15 @@
         };
 
         document.getElementById('home-btn').onclick = () => switchScreen('home');
+        document.getElementById('lang-toggle').onclick = () => setLanguage(LANG === 'zh' ? 'en' : 'zh');
 
         // --- 初始化 ---
         initGroups();
         renderLevelScreen();
+        applyLanguage();
 
     </script>
 
-    <!-- v1.1: 课件版本注记（无行为变更，验证发布门控） -->
-<!-- act2: 零 token 回归触发验证（无行为变更） -->
 </body>
 
 </html>
