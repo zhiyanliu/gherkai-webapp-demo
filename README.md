@@ -13,7 +13,14 @@ cd app && python3 -m http.server 8080
 
 ## 与 gherkai 一起用
 
-（待补：用例说明与演示步骤）
+这个仓库按一套 QA 团队的工作方法组织，方法本身写在 [docs/qa-practice-with-gherkai.md](./docs/qa-practice-with-gherkai.md)：QA 备料、按功能域给 AI agent 写测试任务简报、验收产出、运行与修正。
+
+- 需求：[docs/product-requirements.md](./docs/product-requirements.md)
+- 测试约定（agent 与人都遵守）：[docs/testing-conventions.md](./docs/testing-conventions.md)
+- 测试任务简报模板：[docs/test-brief-template.md](./docs/test-brief-template.md)；本项目各功能域的简报在 [docs/briefs/](./docs/briefs/)
+- 用例：`features/` 一个功能域一份；确定性 step 代码在 `steps/`
+
+（用例与演示步骤随后补充。）
 
 ## 来源
 
