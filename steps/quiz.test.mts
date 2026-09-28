@@ -95,14 +95,30 @@ async function rejectsAssertion(p: Promise<unknown>, re: RegExp): Promise<void> 
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// --- 题库副本 ---
-test("题库副本与应用源码一致", () => {
+// --- 题库：规格在需求文档附录 A，steps/_vocabulary.json 是它的副本；应用源码必须与规格一致 ---
+const REQUIREMENTS = new URL("../docs/product-requirements.md", import.meta.url);
+
+function vocabularyFromRequirements(): Map<string, string> {
+  const text = readFileSync(fileURLToPath(REQUIREMENTS), "utf-8");
+  const appendix = text.split("## 附录 A：题库", 2)[1];
+  const spec = new Map<string, string>();
+  for (const m of appendix.matchAll(/^\| (\S) \| (\S+) \|$/gm)) spec.set(m[1], m[2]);
+  return spec;
+}
+
+test("题库副本与需求文档附录 A 一致", () => {
+  const spec = vocabularyFromRequirements();
+  assert.equal(spec.size, 81);
+  assert.deepEqual(Object.fromEntries(checks.loadVocabulary()), Object.fromEntries(spec));
+});
+
+test("应用源码的题库与规格一致（判的是应用，不是规格）", () => {
   const src = readFileSync(fileURLToPath(APP_INDEX), "utf-8");
   const block = /const VOCABULARY = \[(.*?)\];/s.exec(src)![1];
   const fromApp = new Map<string, string>();
   for (const m of block.matchAll(/\{\s*word:\s*'([^']+)',\s*pinyin:\s*'([^']+)'\s*\}/g)) fromApp.set(m[1], m[2]);
   assert.equal(fromApp.size, 81);
-  assert.deepEqual(Object.fromEntries(checks.loadVocabulary()), Object.fromEntries(fromApp));
+  assert.deepEqual(Object.fromEntries(fromApp), Object.fromEntries(checks.loadVocabulary()), "应用题库与规格不一致");
 });
 
 // --- 进度、得分、选项个数 ---

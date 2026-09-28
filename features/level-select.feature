@@ -1,13 +1,5 @@
-# 选关页（需求 F2）。对应简报 docs/briefs/level-select.md，需求 docs/product-requirements.md 第 5 节 F2 与第 4 节题库。
-#
-# 引擎：界面中文为主，中文场景标 @engine:midscene；英文界面那条标 @engine:novaact，其 AI 步用英文写（Nova Act 面向英文）。
-# 分工：选关页标题、关卡按钮个数、每个按钮的两行文案、「返回主页」与「开始挑战」按钮的存在、进入关卡后的进度与得分
-#       走确定性 step（steps/level_select.py 与 steps/level_select.mts，进度与得分复用 steps/quiz.py 与 steps/quiz.mts，
-#       两引擎成对）；「整体呈现为可点选的关卡列表」「回到主页后是主页形态」「进入了答题页」「英文界面文案确实是英文」
-#       这些页面形态与语义判断交给 AI。
-# 分组：4 条 scenario 互不相干、各自从主页打开，不标 @scope，各成一个 job。
-# 注意：关卡按钮文案里的字母 N 是序号占位：「第 N 组」表示第 1 个按钮是「第 1 组」、第 2 个是「第 2 组」……
-#       每组的生字每次打开都随机重分（需求 F2），所以不检查某一组里有哪些字。
+# 对应需求：docs/product-requirements.md 的 F2
+# 对应简报：docs/briefs/level-select.md
 Feature: 选关页
 
   @smoke @engine:midscene

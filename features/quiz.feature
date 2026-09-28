@@ -1,12 +1,5 @@
-# 答题页（需求 F3）。对应简报 docs/briefs/quiz.md，需求 docs/product-requirements.md 第 5 节 F3 与第 4 节题库。
-#
-# 引擎：界面中文为主，中文场景标 @engine:midscene；英文界面那条标 @engine:novaact，其 AI 步用英文写（Nova Act 面向英文）。
-# 分工：进度、得分、选项个数、按题库选对/选错、再点一次、高亮状态的个数、自动切题的时长走确定性 step
-#       （steps/quiz.py 与 steps/quiz.mts，两引擎成对）；生字卡上是一个汉字、选项的答对/答错高亮颜色、
-#       英文界面的文案交给 AI 判定。
-# 分组：5 条 scenario 互不相干、各自从主页进入第 1 组，不标 @scope，各成一个 job。
-# 注意：答对后页面只停留 1.5 秒（答错 3 秒）就自动切题，所以作答之后紧跟的 AI 高亮判定要第一个执行，
-#       「一题只答一次」那条作答之后全部走确定性 step（毫秒级），保证再点一次落在同一题上。
+# 对应需求：docs/product-requirements.md 的 F3
+# 对应简报：docs/briefs/quiz.md
 Feature: 答题页
 
   @smoke @engine:midscene

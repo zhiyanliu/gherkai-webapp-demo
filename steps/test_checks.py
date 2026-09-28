@@ -101,16 +101,35 @@ def load(page, **kw):
     page.set_content(quiz_html(WORD, OPTIONS, CORRECT, **kw))
 
 
-# --- 题库副本与应用源码一致 ---
-def test_vocabulary_matches_app_source():
+# --- 题库：规格在需求文档附录 A，steps/_vocabulary.json 是它的副本；应用源码必须与规格一致 ---
+REQUIREMENTS = Path(__file__).resolve().parent.parent / "docs" / "product-requirements.md"
+
+
+def vocabulary_from_requirements() -> dict[str, str]:
+    """解析需求文档附录 A 的题库表（每行「| 字 | 拼音 |」）。"""
+    text = REQUIREMENTS.read_text(encoding="utf-8")
+    appendix = text.split("## 附录 A：题库", 1)[1]
+    items = re.findall(r"^\| (\S) \| (\S+) \|$", appendix, re.M)
+    return dict(items)
+
+
+def test_vocabulary_json_matches_requirements_appendix():
+    spec = vocabulary_from_requirements()
+    assert len(spec) == 81, "需求附录 A 应列 81 个不重复的生字"
+    assert _checks.load_vocabulary() == spec, "steps/_vocabulary.json 与需求文档附录 A 不一致：规格变了就同步这份副本"
+
+
+def test_app_source_matches_vocabulary_spec():
+    """应用内嵌的题库必须与规格一致（需求第 4 节）。这里判的是应用，不是规格。"""
     src = APP_INDEX.read_text(encoding="utf-8")
     found = re.search(r"const VOCABULARY = \[(.*?)\];", src, re.S)
     assert found is not None, "app/index.html 里找不到 VOCABULARY 表"
-    block = found.group(1)
-    items = re.findall(r"\{\s*word:\s*'([^']+)',\s*pinyin:\s*'([^']+)'\s*\}", block)
+    items = re.findall(r"\{\s*word:\s*'([^']+)',\s*pinyin:\s*'([^']+)'\s*\}", found.group(1))
     from_app = dict(items)
     assert len(items) == len(from_app) == 81, "应用题库应有 81 个不重复的生字（需求第 4 节）"
-    assert _checks.load_vocabulary() == from_app, "steps/_vocabulary.json 与 app/index.html 的 VOCABULARY 不一致，同步这份副本"
+    spec = _checks.load_vocabulary()
+    diff = {w: (spec.get(w), from_app.get(w)) for w in set(spec) | set(from_app) if spec.get(w) != from_app.get(w)}
+    assert not diff, f"应用题库与规格不一致（字: (规格, 应用)）：{diff}"
 
 
 # --- 进度、得分、选项个数 ---
