@@ -7,6 +7,7 @@
 - `features/`：一个功能域一份 `.feature`，文件名用英文小写连字符（`quiz.feature`），与 `docs/briefs/` 里的简报一一对应。
 - `steps/`：确定性 step 代码。注册文件按主题命名（`quiz.py`、`quiz.mts`），只做注册；判定逻辑放 `_` 前缀的辅助模块（`_checks.py`、`_checks.mts`）；单测文件 Python 以 `test_` 开头、TypeScript 含 `.test.`。两个引擎成对维护，模式语义、说明、示例同文。
 - `reports/`：运行产物，不入库。
+- `.claude/skills/gherkai/` 与 `.agents/skills/gherkai/`：gherkai 的 agent skill，每人本机执行 `gherkai skill install --agent all` 安装，与自己装的命令行同版本，不入库。
 
 ## 被测应用
 
@@ -24,4 +25,5 @@
 ## 运行
 
 - 默认只预检（`gherkai plan`），不实际运行；实际运行由人发起。
+- 日常在本机后端运行。云端后端只用于演示提交链路；云端运行用的 `steps/` 由测试开发打进 worker 镜像并推送，改了 steps 要重推，做法见 gherkai 用户指南的云端后端一页。
 - 汇报用中文。

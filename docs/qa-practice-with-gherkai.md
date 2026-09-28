@@ -19,7 +19,7 @@ AI agent 不是替 QA 决定测什么的人，它替 QA 做施工：把测试设
 
 1. 装命令行与本机 worker（`uv tool install 'gherkai[local]'`，Midscene 引擎另装 `npm i -g @gherkai/worker-midscene`）。
 2. 把 gherkai 的 agent skill 装进项目：`gherkai skill install --agent all`。它会问是否把一行提示写进项目的 `CLAUDE.md` 与 `AGENTS.md`，答是。
-3. 写项目约定，放在 agent 一定会读到的地方（本仓库是 [docs/testing-conventions.md](./testing-conventions.md)，`CLAUDE.md` 与 `AGENTS.md` 各指向它）：用例目录布局、tag 约定、scope 命名、被测地址、界面语言、默认不真跑。
+3. 写项目约定，放在 agent 一定会读到的地方（本仓库是 [docs/ui-testing-conventions.md](./ui-testing-conventions.md)，`CLAUDE.md` 与 `AGENTS.md` 各指向它）：用例目录布局、tag 约定、scope 命名、被测地址、界面语言、默认不真跑。
 4. 确认被测应用有一个稍后运行时可达的地址。本机应用用 `--expose-local` 起隧道即可，不必先部署。
 
 ## 3. QA 的备料

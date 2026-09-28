@@ -12,3 +12,7 @@ __pycache__/
 .DS_Store
 .idea/
 .vscode/
+
+# gherkai 的 agent skill：每人本机执行 `gherkai skill install --agent all` 安装，不入库
+.claude/skills/gherkai/
+.agents/skills/gherkai/
