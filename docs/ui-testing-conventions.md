@@ -28,7 +28,7 @@
 
 约束：
 
-- 先预检（`gherkai plan`），不实际运行；实际运行由人发起。
+- 只预检，不实际运行（见下「运行」一节的命令清单）；实际运行由人发起。
 - 确定性 step 两个引擎都要有；判定逻辑放 `_` 前缀的辅助模块并配本地单测；模式写窄，带引号参数与特征词。
 - 不改需求口径：需求含糊处标出来问人，不自行放宽或收紧期望。
 
@@ -41,6 +41,7 @@
 
 ## 运行
 
-- 默认只预检（`gherkai plan`），不实际运行；实际运行由人发起。
+- **agent 不执行 `gherkai run`、`gherkai submit`、`gherkai status --wait`**，哪怕是为了验证自己写的用例；实际运行只由人发起。agent 可以执行的只有 `gherkai plan`、`gherkai list-deterministic`、`gherkai list-engines`、不带云端参数的 `gherkai doctor`，以及 `steps/` 的本地单测。写完只需把预检结果交给人。
+- 不要在本机起隧道（`--expose-local` 是运行时选项，随实际运行由人给出）。
 - 日常在本机后端运行。云端后端只用于演示提交链路；云端运行用的 `steps/` 由测试开发打进 worker 镜像并推送，改了 steps 要重推，做法见 gherkai 用户指南的云端后端一页。
 - 汇报用中文。
