@@ -4,11 +4,11 @@
 
 ## 被测应用
 
-二年级语文识字课件：主页、选关（8 组）、生字选拼音答题（每组 10 题）、得分与结算。单页静态实现，无外网依赖，断网可运行。
+二年级语文识字课件：主页、选关（8 组）、生字选拼音答题（每组 10 题）、得分与结算。单页静态实现，无外网依赖，断网可运行。界面中英双语：右上角按钮切换，或用地址参数 `?lang=en` 以英文界面启动。产品需求见 [docs/product-requirements.md](./docs/product-requirements.md)。
 
 ```bash
 cd app && python3 -m http.server 8080
-# 浏览器打开 http://localhost:8080
+# 浏览器打开 http://localhost:8080 ；英文界面 http://localhost:8080/?lang=en
 ```
 
 ## 与 gherkai 一起用
