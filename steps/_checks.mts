@@ -23,6 +23,7 @@ export const SEL_OPTIONS_BOX = "#options-container";  // 选项容器
 export const SEL_OPTION = ".option-btn";              // 单个拼音选项
 export const SEL_OPTIONS = `${SEL_OPTIONS_BOX} ${SEL_OPTION}`;
 export const SEL_SCORE = "#score-display";            // 得分
+export const SEL_GAME_SCREEN = "#game-screen";        // 答题页整块：四个页面的节点始终在 DOM 里、只靠隐藏切换，判进度与得分前先确认答题页可见
 export const SEL_CURRENT_Q = "#current-q";            // 进度：当前题号
 export const SEL_TOTAL_Q = "#total-q";                // 进度：总题数
 export const STATE_CORRECT = "correct";               // 选项的「答对」状态（class）
@@ -174,13 +175,25 @@ async function optionTexts(page: Page): Promise<string[]> {
 
 // --- 判定：进度、得分、选项个数 ---
 /** 进度「当前题号 / 总题数」的数值。 */
+/** 答题页在 timeoutMs 内可见；否则 DeterministicAssertion。进度与得分的节点在主页上也存在且带着旧值，不先判这一步会在主页上误判通过。 */
+async function requireGameScreen(page: Page, timeoutMs: number): Promise<void> {
+  try {
+    await page.locator(SEL_GAME_SCREEN).waitFor({ state: "visible", timeout: timeoutMs });
+  } catch {
+    throw new DeterministicAssertion(`答题页未显示，无法判定进度与得分（${where(page, SEL_GAME_SCREEN)}）`);
+  }
+}
+
+/** 进度「当前题号 / 总题数」的数值；先要求答题页可见。 */
 export async function progressIs(page: Page, current: string, total: string, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<void> {
+  await requireGameScreen(page, timeoutMs);
   await expectText(page, SEL_CURRENT_Q, current, "进度的当前题号", timeoutMs);
   await expectText(page, SEL_TOTAL_Q, total, "进度的总题数", timeoutMs);
 }
 
-/** 当前得分的数值。 */
+/** 当前得分的数值；先要求答题页可见。 */
 export async function scoreIs(page: Page, score: string, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<void> {
+  await requireGameScreen(page, timeoutMs);
   await expectText(page, SEL_SCORE, score, "得分", timeoutMs);
 }
 

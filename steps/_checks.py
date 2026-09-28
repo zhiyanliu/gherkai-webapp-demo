@@ -29,6 +29,7 @@ SEL_OPTIONS_BOX = "#options-container"     # 选项容器
 SEL_OPTION = ".option-btn"                 # 单个拼音选项
 SEL_OPTIONS = f"{SEL_OPTIONS_BOX} {SEL_OPTION}"
 SEL_SCORE = "#score-display"               # 得分
+SEL_GAME_SCREEN = "#game-screen"           # 答题页整块：四个页面的节点始终在 DOM 里、只靠隐藏切换，判进度与得分前先确认答题页可见
 SEL_CURRENT_Q = "#current-q"               # 进度：当前题号
 SEL_TOTAL_Q = "#total-q"                   # 进度：总题数
 STATE_CORRECT = "correct"                  # 选项的「答对」状态（class）
@@ -123,14 +124,24 @@ def _expect_text(page: Page, selector: str, expected: str, what: str, timeout_ms
 
 
 # --- 判定：进度、得分、选项个数 ---
+def _require_game_screen(page: Page, timeout_ms: int) -> None:
+    """答题页在 timeout_ms 内可见；否则 AssertionError。进度与得分的节点在主页上也存在且带着旧值，不先判这一步会在主页上误判通过。"""
+    try:
+        expect(page.locator(SEL_GAME_SCREEN)).to_be_visible(timeout=timeout_ms)
+    except AssertionError as e:
+        raise AssertionError(f"答题页未显示，无法判定进度与得分（{_where(page, SEL_GAME_SCREEN)}）") from e
+
+
 def progress_is(page: Page, current: str, total: str, timeout_ms: int = DEFAULT_TIMEOUT_MS) -> None:
-    """进度「当前题号 / 总题数」的数值。"""
+    """进度「当前题号 / 总题数」的数值；先要求答题页可见。"""
+    _require_game_screen(page, timeout_ms)
     _expect_text(page, SEL_CURRENT_Q, current, "进度的当前题号", timeout_ms)
     _expect_text(page, SEL_TOTAL_Q, total, "进度的总题数", timeout_ms)
 
 
 def score_is(page: Page, score: str, timeout_ms: int = DEFAULT_TIMEOUT_MS) -> None:
-    """当前得分的数值。"""
+    """当前得分的数值；先要求答题页可见。"""
+    _require_game_screen(page, timeout_ms)
     _expect_text(page, SEL_SCORE, score, "得分", timeout_ms)
 
 

@@ -24,10 +24,12 @@ interface Cfg {
 function quizHtml(word: string, options: string[], correct: string, cfg: Cfg = {}): string {
   const c = { score: 0, current: 1, total: 10, correctDelay: 300, wrongDelay: 600, advance: true, nextQuestion: "2", incrementScore: true, ...cfg };
   return `<!doctype html><html><body>
+<section id="game-screen">
 <div><span id="score-display">${c.score}</span></div>
 <div><span id="current-q">${c.current}</span> / <span id="total-q">${c.total}</span></div>
 <div><span id="current-word">${word}</span></div>
 <div id="options-container"></div>
+</section>
 <script>
   const CORRECT = ${JSON.stringify(correct)};
   const OPTIONS = ${JSON.stringify(options)};
@@ -303,4 +305,11 @@ test("真应用：一题只答一次", async () => {
   await checks.clickAnotherUnhighlightedOption(page);
   await checks.scoreIs(page, "1");
   await checks.highlightCountsAre(page, 1, 0);
+});
+
+test("真应用：主页上判进度与得分要失败（答题页未显示）", async () => {
+  await page.goto(APP_INDEX.href);
+  await page.waitForSelector("#start-btn");
+  await assert.rejects(checks.progressIs(page, "1", "10", 800), (e: unknown) => e instanceof DeterministicAssertion && /答题页未显示/.test((e as Error).message));
+  await assert.rejects(checks.scoreIs(page, "0", 800), (e: unknown) => e instanceof DeterministicAssertion && /答题页未显示/.test((e as Error).message));
 });

@@ -45,10 +45,12 @@ def quiz_html(word: str, options: list[str], correct: str, *, score: int = 0, cu
     cfg = {"correctDelay": correct_delay, "wrongDelay": wrong_delay, "advance": advance,
            "nextQuestion": next_question, "incrementScore": increment_score}
     return f"""<!doctype html><html><body>
+<section id="game-screen">
 <div><span id="score-display">{score}</span></div>
 <div><span id="current-q">{current}</span> / <span id="total-q">{total}</span></div>
 <div><span id="current-word">{word}</span></div>
 <div id="options-container"></div>
+</section>
 <script>
   const CORRECT = {json.dumps(correct, ensure_ascii=False)};
   const OPTIONS = {json.dumps(options, ensure_ascii=False)};
@@ -323,3 +325,13 @@ def test_real_app_answers_only_once(page):
     _checks.click_another_unhighlighted_option(page)
     _checks.score_is(page, "1")
     _checks.highlight_counts_are(page, 1, 0)
+
+
+def test_progress_and_score_require_game_screen(page):
+    """主页上进度与得分的节点也在 DOM 里（带旧值），判定必须因答题页未显示而失败。"""
+    page.goto(APP_INDEX.as_uri())
+    page.wait_for_selector("#start-btn")
+    with pytest.raises(AssertionError, match="答题页未显示"):
+        _checks.progress_is(page, "1", "10", timeout_ms=800)
+    with pytest.raises(AssertionError, match="答题页未显示"):
+        _checks.score_is(page, "0", timeout_ms=800)
