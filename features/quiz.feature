@@ -18,7 +18,7 @@ Feature: 答题页
     When "点击开始挑战按钮"
     And "选择第 1 组"
     And 选择当前生字的正确拼音
-    Then "被选中的拼音选项呈绿色的答对状态"
+    Then 处于答对状态的选项有 "1" 个，处于答错状态的选项有 "0" 个
     And 得分为 "1"
     And 作答后 "1.5" 秒自动进入第 "2" 题
 
@@ -28,7 +28,7 @@ Feature: 答题页
     When "点击开始挑战按钮"
     And "选择第 1 组"
     And 选择一个错误的拼音
-    Then "被选中的拼音选项呈红色的答错状态，另有一个选项以绿色高亮出正确答案"
+    Then 处于答对状态的选项有 "1" 个，处于答错状态的选项有 "1" 个
     And 得分为 "0"
     And 作答后 "3" 秒自动进入第 "2" 题
 
@@ -49,6 +49,6 @@ Feature: 答题页
     Then "the level selection page shows its heading, level buttons and back button in English"
     When "choose Group 1"
     And 选择当前生字的正确拼音
-    Then "the selected pinyin option is highlighted green as correct"
+    Then 处于答对状态的选项有 "1" 个，处于答错状态的选项有 "0" 个
     And 得分为 "1"
     And 作答后 "1.5" 秒自动进入第 "2" 题

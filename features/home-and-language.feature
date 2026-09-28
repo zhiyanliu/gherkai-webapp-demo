@@ -16,7 +16,7 @@ Feature: 主页与界面语言
     Then 页面标题是 "Character Challenge - Grade 2, Volume 1"
     And 页面上有 "Start Challenge" 按钮
     And 语言切换按钮显示 "中文"
-    And "the home page shows the title Character Challenge and a Start Challenge button, both in English"
+    And "the visible text on the home page is English: the heading reads Character Challenge and the button reads Start Challenge"
 
   @smoke @engine:midscene
   Scenario: 在主页切换语言再切回
