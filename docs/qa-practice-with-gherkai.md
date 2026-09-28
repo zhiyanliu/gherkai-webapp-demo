@@ -98,6 +98,17 @@ QA 验收三样，都不需要读代码：
 
 ## 9. 两种 agent 的差别
 
-Claude Code 读项目里的 `.claude/skills/`，Codex 读 `.agents/skills/`，`gherkai skill install --agent all` 两处都装。项目约定分别经 `CLAUDE.md` 与 `AGENTS.md` 进入两者的上下文。简报的给法一样：把简报全文作为一次对话的输入。
+两种 agent 在本项目上都走过同一张选关页简报，产出结构相同：4 条 scenario、同样的 4 条确定性 step 模式、两引擎成对、单测两侧各一份，预检都是 4 个 job 无冲突。差别在操作面，不在结果面。
 
-（Codex 在本项目上走一遍之后，操作差异与注意事项补在这里。）
+| | Claude Code | Codex |
+|---|---|---|
+| skill 安装位 | `.claude/skills/gherkai/` | `.agents/skills/gherkai/` |
+| 项目约定入口 | `CLAUDE.md` | `AGENTS.md` |
+| 非交互调用 | `claude -p "<简报>"`，用 `--allowedTools` 限定工具 | `codex exec "<简报>"`，用 `--sandbox` 或审批选项放权 |
+| 用时（同一张简报） | 约 15 分钟 | 约 11 分钟 |
+| 读料方式 | 逐个读文件 | 一次批量并行读多个文件，命令也批量并行执行 |
+| 外部信息 | 不联网 | 查了三次 Playwright 官方 API 文档，需要允许联网 |
+| 汇报形态 | 完整汇报写在对话里 | 对话里给摘要，交付报告与预检原文写成文件放在 `reports/` 下并给链接 |
+| 对「不真跑」约定 | 约定写成「默认只预检」时有一次自行真跑；改成禁令加命令清单后遵守 | 遵守 |
+
+两点提醒。约定要写成禁令加清单，不写「默认」；这条是在 Claude Code 上学到的，对两种 agent 都适用。Codex 把交付报告写进 `reports/`，那是本项目里被忽略的运行产物目录，报告会随下一次清理消失，要留档就让它写到 `docs/` 或对话里。
