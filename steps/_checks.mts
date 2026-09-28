@@ -321,17 +321,47 @@ export async function clickAnotherUnhighlightedOption(page: Page, timeoutMs = DE
 /** 答对当前题后立刻再点一个未高亮的选项，断言第二次点击被忽略：仍在同一题、得分只加 1、恰好一个答对高亮、没有答错高亮。
  *  放在同一步里做，是因为答对后 1.5 秒就切题，拆成多步时步间的派发与取证耗时会超过这个窗口。 */
 export async function answerThenReclickIsIgnored(page: Page, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<void> {
-  const question = await liveQuestion(page);
+  const [word] = await currentQuestion(page, timeoutMs);
+  const correct = lookup(page, word);
   const before = Number((await page.locator(SEL_SCORE).textContent())?.trim() || "0");
-  await answerCorrect(page, timeoutMs);
-  await clickAnotherUnhighlightedOption(page, timeoutMs);
-  const now = await liveQuestion(page);
-  if (now !== question) {
-    throw new DeterministicAssertion(`再点之后题号从 ${question} 变成了 ${now}：第二次点击落到了下一题（${where(page, SEL_OPTIONS)}）`);
+  // 两次点击与读数放进同一次 evaluate：远程浏览器每次往返几百毫秒，分开调用会在 1.5 秒窗口内撞上自动切题
+  // Node 版 Playwright 不会自动调用字符串里的函数表达式（Python 版会），所以把参数以 JSON 字面量拼进表达式、当场调用
+  const arg = { optSel: SEL_OPTIONS, qSel: SEL_CURRENT_Q, scoreSel: SEL_SCORE, correct, cls: [STATE_CORRECT, STATE_WRONG] };
+  const r = (await page.evaluate(`(${ANSWER_AND_RECLICK_JS})(${JSON.stringify(arg)})`)) as { error?: string; texts?: string[]; qBefore: string; qAfter: string; score: string; correctCount: number; wrongCount: number; other: string };
+  if (r.error === "no-correct-option") {
+    throw new DeterministicAssertion(`选项里没有「${word}」的正确拼音 ${JSON.stringify(correct)}：${JSON.stringify(r.texts)}（${where(page, SEL_OPTIONS)}）`);
   }
-  await highlightCountsAre(page, 1, 0);
-  await expectText(page, SEL_SCORE, String(before + 1), "再点之后的得分", HIGHLIGHT_TIMEOUT_MS);
+  if (r.error === "no-other-option") throw new DeterministicAssertion(`作答后没有可再点的未高亮选项（${where(page, SEL_OPTIONS)}）`);
+  if (r.qAfter !== r.qBefore) {
+    throw new DeterministicAssertion(`再点之后题号从 ${r.qBefore} 变成了 ${r.qAfter}：第二次点击落到了下一题（${where(page, SEL_OPTIONS)}）`);
+  }
+  if (r.correctCount !== 1 || r.wrongCount !== 0 || r.score !== String(before + 1)) {
+    throw new DeterministicAssertion(
+      `第二次点击没有被忽略：得分 ${r.score}（应为 ${before + 1}）、答对高亮 ${r.correctCount} 个（应为 1）、答错高亮 ${r.wrongCount} 个（应为 0）；` +
+        `先点 ${JSON.stringify(correct)} 再点 ${JSON.stringify(r.other)}（第 ${r.qBefore} 题；${where(page, SEL_OPTIONS)}）`,
+    );
+  }
 }
+
+// 答对后立刻再点一个未高亮选项，同步读回题号、得分与高亮计数——整个过程在页面里一次完成（传字符串，不传函数）。
+const ANSWER_AND_RECLICK_JS = `
+({ optSel, qSel, scoreSel, correct, cls }) => {
+  const btns = Array.from(document.querySelectorAll(optSel));
+  const target = btns.find(b => b.textContent.trim() === correct);
+  if (!target) return { error: 'no-correct-option', texts: btns.map(b => b.textContent.trim()) };
+  const qBefore = document.querySelector(qSel).textContent.trim();
+  target.click();
+  const other = btns.find(b => b !== target && !cls.some(c => b.classList.contains(c)));
+  if (!other) return { error: 'no-other-option' };
+  other.click();
+  return {
+    qBefore, qAfter: document.querySelector(qSel).textContent.trim(),
+    score: document.querySelector(scoreSel).textContent.trim(),
+    correctCount: btns.filter(b => b.classList.contains(cls[0])).length,
+    wrongCount: btns.filter(b => b.classList.contains(cls[1])).length,
+    other: other.textContent.trim(),
+  };
+}`.trim();
 
 export async function highlightCountsAre(page: Page, correct: number, wrong: number, timeoutMs = HIGHLIGHT_TIMEOUT_MS): Promise<void> {
   const selCorrect = `${SEL_OPTIONS}.${STATE_CORRECT}`;

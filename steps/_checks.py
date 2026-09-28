@@ -78,6 +78,26 @@ _PROBE_READ_JS = """
   return { questionBefore: p.questionBefore, clickedAt: p.clickedAt, advancedAt: p.advancedAt, questionAfter: p.questionAfter };
 }
 """
+# 答对后立刻再点一个未高亮选项，同步读回题号、得分与高亮计数——整个过程在页面里一次完成。
+_ANSWER_AND_RECLICK_JS = """
+({ optSel, qSel, scoreSel, correct, cls }) => {
+  const btns = Array.from(document.querySelectorAll(optSel));
+  const target = btns.find(b => b.textContent.trim() === correct);
+  if (!target) return { error: 'no-correct-option', texts: btns.map(b => b.textContent.trim()) };
+  const qBefore = document.querySelector(qSel).textContent.trim();
+  target.click();
+  const other = btns.find(b => b !== target && !cls.some(c => b.classList.contains(c)));
+  if (!other) return { error: 'no-other-option' };
+  other.click();
+  return {
+    qBefore, qAfter: document.querySelector(qSel).textContent.trim(),
+    score: document.querySelector(scoreSel).textContent.trim(),
+    correctCount: btns.filter(b => b.classList.contains(cls[0])).length,
+    wrongCount: btns.filter(b => b.classList.contains(cls[1])).length,
+    other: other.textContent.trim(),
+  };
+}
+"""
 _PROBE_ADVANCED_JS = "(key) => !!(window[key] && window[key].advancedAt !== null)"
 
 
@@ -260,15 +280,23 @@ def answer_then_reclick_is_ignored(page: Page, timeout_ms: int = DEFAULT_TIMEOUT
     为什么是一步而不是「作答」「再点」「判高亮」三步：答对后页面只停留 1.5 秒就自动切题，三步之间的派发与取证耗时
     会超过这个窗口，第二次点击就落到下一题上。瞬态窗口内的多个动作要放进同一个确定性 step 里完成。
     """
-    question = _live_question(page)
+    word, _texts = _current_question(page, timeout_ms)
+    correct = _lookup(page, word)
     before = int(_safe_text(page, SEL_SCORE) or "0")
-    answer_correct(page, timeout_ms)
-    click_another_unhighlighted_option(page, timeout_ms)
-    now = _live_question(page)
-    if now != question:
-        raise AssertionError(f"再点之后题号从 {question} 变成了 {now}：第二次点击落到了下一题（{_where(page, SEL_OPTIONS)}）")
-    highlight_counts_are(page, 1, 0)
-    _expect_text(page, SEL_SCORE, str(before + 1), "再点之后的得分", HIGHLIGHT_TIMEOUT_MS)
+    # 两次点击与读数放进同一次 evaluate：远程浏览器每次往返几百毫秒，分开调用会在 1.5 秒窗口内撞上自动切题
+    r = page.evaluate(_ANSWER_AND_RECLICK_JS, {"optSel": SEL_OPTIONS, "qSel": SEL_CURRENT_Q, "scoreSel": SEL_SCORE,
+                                                "correct": correct, "cls": [STATE_CORRECT, STATE_WRONG]})
+    if r.get("error") == "no-correct-option":
+        raise AssertionError(f"选项里没有「{word}」的正确拼音 {correct!r}：{r.get('texts')}（{_where(page, SEL_OPTIONS)}）")
+    if r.get("error") == "no-other-option":
+        raise AssertionError(f"作答后没有可再点的未高亮选项（{_where(page, SEL_OPTIONS)}）")
+    if r["qAfter"] != r["qBefore"]:
+        raise AssertionError(f"再点之后题号从 {r['qBefore']} 变成了 {r['qAfter']}：第二次点击落到了下一题（{_where(page, SEL_OPTIONS)}）")
+    if r["correctCount"] != 1 or r["wrongCount"] != 0 or r["score"] != str(before + 1):
+        raise AssertionError(
+            f"第二次点击没有被忽略：得分 {r['score']}（应为 {before + 1}）、答对高亮 {r['correctCount']} 个（应为 1）、"
+            f"答错高亮 {r['wrongCount']} 个（应为 0）；先点 {correct!r} 再点 {r['other']!r}（第 {r['qBefore']} 题；{_where(page, SEL_OPTIONS)}）"
+        )
 
 
 def highlight_counts_are(page: Page, correct: int, wrong: int, timeout_ms: int = HIGHLIGHT_TIMEOUT_MS) -> None:
