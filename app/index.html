@@ -252,10 +252,15 @@
         }
         function setLanguage(lang) {
             LANG = lang === 'en' ? 'en' : 'zh';
-            const url = new URL(location.href);
-            url.searchParams.set('lang', LANG);
-            history.replaceState(null, '', url);
             applyLanguage();
+            // 用相对地址写回：文档地址带凭据（如经隧道访问的 https://用户:口令@主机/）时，传绝对地址会被浏览器拒绝
+            const params = new URLSearchParams(location.search);
+            params.set('lang', LANG);
+            try {
+                history.replaceState(null, '', `${location.pathname}?${params}${location.hash}`);
+            } catch (e) {
+                console.warn('语言已切换，但地址栏未能更新', e);
+            }
         }
 
         // --- 数据准备 ---
