@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>识字大挑战 - 二年级上册</title>
+    <script src="assets/vendor/tailwind.js"></script>
+    <script src="assets/vendor/anime.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B6B',
+                        secondary: '#4ECDC4',
+                        accent: '#FFD93D',
+                        wood: '#8B4513',
+                        leaf: '#66BB6A'
+                    },
+                    fontFamily: {
+                        sans: ['Comic Sans MS', 'YouYuan', 'Microsoft YaHei', 'sans-serif']
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 2s infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            overflow: hidden;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .wood-text {
+            text-shadow: 2px 2px 0px #5D4037;
+        }
+
+        .card-shadow {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15), 0 6px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-press:active {
+            transform: scale(0.95);
+        }
+
+        /* 玻璃拟态 */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .option-btn.correct {
+            background-color: #66BB6A !important;
+            color: white;
+            border-color: #2E7D32;
+        }
+        
+        .option-btn.wrong {
+            background-color: #EF5350 !important;
+            color: white;
+            border-color: #C62828;
+        }
+    </style>
+
+</head>
+<body class="bg-sky-100 h-screen w-screen flex flex-col items-center justify-center relative">
+
+    <!-- 背景图 -->
+    <div class="absolute inset-0 z-0">
+        <img src="assets/img/qJeaqwbTk4pzd66P3WMMAD.jpg" 
+             class="w-full h-full object-cover opacity-90" alt="背景">
+    </div>
+
+    <!-- 音频资源 -->
+    <audio id="bgm" loop>
+        <!-- 这里可以使用轻快的背景音乐，暂时留空或使用生成的音频 -->
+    </audio>
+    <audio id="voice-welcome" src="assets/audio/NBgEr3XkeZVTyLhB6uNGJ3.mp3"></audio>
+    <audio id="voice-correct" src="assets/audio/JzbicuAFGUAUzPAX7uhRKJ.mp3"></audio>
+    <audio id="voice-wrong" src="assets/audio/m3zr2KLHUcv3uu9Bj4YKMQ.mp3"></audio>
+    <audio id="voice-end" src="assets/audio/mYBcpEv2SrGG7Lk5wcTB9U.mp3"></audio>
+
+    <!-- 页面容器 -->
+    <main id="app" class="relative z-10 w-full max-w-4xl h-full flex flex-col items-center justify-center p-4">
+        
+        <!-- 1. 首页 -->
+        <section id="home-screen" class="flex flex-col items-center w-full">
+            <!-- 标题牌 -->
+            <div class="relative w-80 md:w-96 h-48 mb-8 animate-bounce-slow">
+                <img src="assets/img/Txyvt8YtwwUSUPPwCeYhaA.jpg" 
+                     class="w-full h-full object-contain" alt="标题牌">
+                <div class="absolute inset-0 flex items-center justify-center pt-4">
+                    <h1 class="text-4xl font-bold text-white wood-text tracking-wider">识字大挑战</h1>
+                </div>
+            </div>
+
+            <!-- 开始按钮 -->
+            <button id="start-btn" class="relative w-64 h-20 transition-transform hover:scale-105 btn-press group">
+                <img src="assets/img/X2cbmeAejbANSkJKbhfgNX.jpg" 
+                     class="w-full h-full object-contain drop-shadow-xl" alt="开始按钮">
+                <span class="absolute inset-0 flex items-center justify-center text-2xl font-bold text-white drop-shadow-md pt-1">
+                    开始挑战
+                </span>
+            </button>
+        </section>
+
+        <!-- 2. 选关页 -->
+        <section id="level-screen" class="hidden w-full max-w-2xl">
+            <div class="glass rounded-3xl p-6 md:p-8 shadow-2xl">
+                <h2 class="text-3xl font-bold text-wood text-center mb-6">选择关卡</h2>
+                <div id="level-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <!-- 关卡按钮由JS生成 -->
+                </div>
+                <button id="back-home-btn" class="mt-6 w-full py-3 bg-gray-400 text-white rounded-xl font-bold hover:bg-gray-500 transition-colors">
+                    返回主页
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. 游戏页 -->
+        <section id="game-screen" class="hidden w-full max-w-md flex flex-col h-full max-h-[800px]">
+            <!-- 顶部状态栏 -->
+            <div class="flex justify-between items-center mb-4 bg-white/90 rounded-full px-4 py-2 shadow-md">
+                <div class="flex items-center gap-2">
+                    <img src="assets/img/5N3YzVzcFSTNu22fH76UoJ.jpg" class="w-8 h-8">
+                    <span id="score-display" class="text-2xl font-bold text-orange-500">0</span>
+                </div>
+                <div class="text-lg font-bold text-gray-600">
+                    <span id="current-q">1</span> / <span id="total-q">10</span>
+                </div>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="w-full bg-gray-200 rounded-full h-3 mb-6 overflow-hidden border-2 border-white">
+                <div id="progress-bar" class="bg-leaf h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+
+            <!-- 生字卡片 -->
+            <div class="flex-1 flex items-center justify-center mb-8 perspective-1000">
+                <div id="word-card" class="relative w-64 h-64 md:w-72 md:h-72 transition-transform duration-500 transform-style-3d">
+                    <div class="absolute inset-0 w-full h-full bg-[#FFF9C4] rounded-3xl shadow-[0_10px_20px_rgba(0,0,0,0.15)] border-4 border-white flex items-center justify-center">
+                        <!-- 装饰性纹理 -->
+                        <div class="absolute inset-2 border-2 border-dashed border-yellow-200 rounded-2xl"></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span id="current-word" class="text-8xl md:text-9xl font-bold text-gray-800 font-sans z-10"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 选项区域 -->
+            <div id="options-container" class="grid grid-cols-2 gap-4 w-full mb-4">
+                <!-- 选项由JS生成 -->
+            </div>
+        </section>
+
+        <!-- 4. 结算页 -->
+        <section id="result-screen" class="hidden w-full max-w-md text-center">
+            <div class="glass rounded-3xl p-8 shadow-2xl transform scale-0 opacity-0" id="result-card">
+                <h2 class="text-3xl font-bold text-wood mb-4">挑战完成！</h2>
+                
+                <div class="flex justify-center items-center gap-2 mb-6">
+                    <img src="assets/img/5N3YzVzcFSTNu22fH76UoJ.jpg" class="w-16 h-16 animate-bounce">
+                    <span id="final-score" class="text-6xl font-bold text-orange-500">0</span>
+                </div>
+
+                <p id="result-msg" class="text-xl text-gray-600 mb-8 font-bold">太棒了！</p>
+
+                <div class="flex flex-col gap-3">
+                    <button id="replay-btn" class="w-full py-4 bg-leaf text-white rounded-xl text-xl font-bold shadow-lg hover:bg-green-600 transition-colors">
+                        再玩一次
+                    </button>
+                    <button id="home-btn" class="w-full py-4 bg-secondary text-white rounded-xl text-xl font-bold shadow-lg hover:bg-teal-500 transition-colors">
+                        返回主页
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 粒子特效容器 -->
+    <canvas id="confetti-canvas" class="absolute inset-0 pointer-events-none z-50"></canvas>
+
+    <script type="module">
+        // --- 数据准备 ---
+        // 统编版二年级上册生字表（部分示例数据，实际应包含更多）
+        const VOCABULARY = [
+            { word: '两', pinyin: 'liǎng' }, { word: '哪', pinyin: 'nǎ' }, { word: '宽', pinyin: 'kuān' },
+            { word: '顶', pinyin: 'dǐng' }, { word: '肚', pinyin: 'dù' }, { word: '皮', pinyin: 'pí' },
+            { word: '孩', pinyin: 'hái' }, { word: '跳', pinyin: 'tiào' }, { word: '变', pinyin: 'biàn' },
+            { word: '极', pinyin: 'jí' }, { word: '片', pinyin: 'piàn' }, { word: '傍', pinyin: 'bàng' },
+            { word: '海', pinyin: 'hǎi' }, { word: '洋', pinyin: 'yáng' }, { word: '作', pinyin: 'zuò' },
+            { word: '给', pinyin: 'gěi' }, { word: '带', pinyin: 'dài' }, { word: '法', pinyin: 'fǎ' },
+            { word: '如', pinyin: 'rú' }, { word: '脚', pinyin: 'jiǎo' }, { word: '它', pinyin: 'tā' },
+            { word: '娃', pinyin: 'wá' }, { word: '她', pinyin: 'tā' }, { word: '毛', pinyin: 'máo' },
+            { word: '更', pinyin: 'gèng' }, { word: '知', pinyin: 'zhī' }, { word: '识', pinyin: 'shí' },
+            { word: '园', pinyin: 'yuán' }, { word: '孔', pinyin: 'kǒng' }, { word: '桥', pinyin: 'qiáo' },
+            { word: '群', pinyin: 'qún' }, { word: '队', pinyin: 'duì' }, { word: '旗', pinyin: 'qí' },
+            { word: '铜', pinyin: 'tóng' }, { word: '号', pinyin: 'hào' }, { word: '领', pinyin: 'lǐng' },
+            { word: '巾', pinyin: 'jīn' }, { word: '杨', pinyin: 'yáng' }, { word: '壮', pinyin: 'zhuàng' },
+            { word: '桐', pinyin: 'tóng' }, { word: '枫', pinyin: 'fēng' }, { word: '松', pinyin: 'sōng' },
+            { word: '柏', pinyin: 'bǎi' }, { word: '棉', pinyin: 'mián' }, { word: '杉', pinyin: 'shān' },
+            { word: '化', pinyin: 'huà' }, { word: '桂', pinyin: 'guì' }, { word: '歌', pinyin: 'gē' },
+            { word: '丛', pinyin: 'cóng' }, { word: '深', pinyin: 'shēn' }, { word: '处', pinyin: 'chù' },
+            { word: '六', pinyin: 'liù' }, { word: '熊', pinyin: 'xióng' }, { word: '猫', pinyin: 'māo' },
+            { word: '九', pinyin: 'jiǔ' }, { word: '朋', pinyin: 'péng' }, { word: '友', pinyin: 'yǒu' },
+            { word: '季', pinyin: 'jì' }, { word: '吹', pinyin: 'chuī' }, { word: '肥', pinyin: 'féi' },
+            { word: '农', pinyin: 'nóng' }, { word: '忙', pinyin: 'máng' }, { word: '归', pinyin: 'guī' },
+            { word: '戴', pinyin: 'dài' }, { word: '辛', pinyin: 'xīn' }, { word: '苦', pinyin: 'kǔ' },
+            { word: '年', pinyin: 'nián' }, { word: '称', pinyin: 'chēng' }, { word: '做', pinyin: 'zuò' },
+            { word: '岁', pinyin: 'suì' }, { word: '站', pinyin: 'zhàn' }, { word: '船', pinyin: 'chuán' },
+            { word: '然', pinyin: 'rán' }, { word: '底', pinyin: 'dǐ' }, { word: '柱', pinyin: 'zhù' },
+            { word: '杆', pinyin: 'gǎn' }, { word: '秤', pinyin: 'chèng' }, { word: '评', pinyin: 'píng' },
+            { word: '奖', pinyin: 'jiǎng' }, { word: '候', pinyin: 'hòu' }, { word: '报', pinyin: 'bào' }
+        ];
+
+        // --- 游戏状态 ---
+        const STATE = {
+            groups: [],
+            currentGroupIndex: 0,
+            currentQuestions: [],
+            currentQIndex: 0,
+            score: 0,
+            isAnswering: false
+        };
+
+        // --- DOM 元素 ---
+        const screens = {
+            home: document.getElementById('home-screen'),
+            level: document.getElementById('level-screen'),
+            game: document.getElementById('game-screen'),
+            result: document.getElementById('result-screen')
+        };
+
+        const audios = {
+            welcome: document.getElementById('voice-welcome'),
+            correct: document.getElementById('voice-correct'),
+            wrong: document.getElementById('voice-wrong'),
+            end: document.getElementById('voice-end')
+        };
+
+        // --- 工具函数 ---
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function switchScreen(screenName) {
+            Object.values(screens).forEach(s => s.classList.add('hidden'));
+            screens[screenName].classList.remove('hidden');
+            
+            // 简单的入场动画
+            anime({
+                targets: screens[screenName],
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 500,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        // --- 游戏逻辑 ---
+
+        // 1. 初始化分组
+        function initGroups() {
+            const shuffled = shuffle([...VOCABULARY]);
+            STATE.groups = [];
+            const groupSize = 10;
+            for (let i = 0; i < shuffled.length; i += groupSize) {
+                const group = shuffled.slice(i, i + groupSize);
+                if (group.length === groupSize) {
+                    STATE.groups.push(group);
+                }
+            }
+        }
+
+        // 2. 生成关卡按钮
+        function renderLevelScreen() {
+            const grid = document.getElementById('level-grid');
+            grid.innerHTML = '';
+            
+            STATE.groups.forEach((group, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'bg-white/90 hover:bg-white text-wood font-bold py-4 px-2 rounded-xl shadow-md transition-all hover:-translate-y-1 border-2 border-wood/20';
+                btn.innerHTML = `<div class="text-xl">第 ${index + 1} 组</div><div class="text-sm text-gray-500 mt-1">${group.length} 个生字</div>`;
+                btn.onclick = () => startGame(index);
+                grid.appendChild(btn);
+            });
+        }
+
+        // 3. 开始游戏
+        function startGame(groupIndex) {
+            STATE.currentGroupIndex = groupIndex;
+            STATE.currentQuestions = STATE.groups[groupIndex];
+            STATE.currentQIndex = 0;
+            STATE.score = 0;
+            
+            updateScoreUI();
+            switchScreen('game');
+            loadQuestion();
+        }
+
+        // 4. 加载题目
+        function loadQuestion() {
+            STATE.isAnswering = false;
+            const q = STATE.currentQuestions[STATE.currentQIndex];
+            
+            // 更新进度
+            document.getElementById('current-q').textContent = STATE.currentQIndex + 1;
+            document.getElementById('total-q').textContent = STATE.currentQuestions.length;
+            document.getElementById('progress-bar').style.width = `${(STATE.currentQIndex / STATE.currentQuestions.length) * 100}%`;
+
+            // 显示生字（带动画）
+            const wordEl = document.getElementById('current-word');
+            wordEl.textContent = q.word;
+            anime({
+                targets: '#word-card',
+                rotateY: [90, 0],
+                duration: 600,
+                easing: 'easeOutElastic(1, .8)'
+            });
+
+            // 生成选项
+            const options = generateOptions(q);
+            renderOptions(options, q.pinyin);
+        }
+
+        // 生成干扰项
+        function generateOptions(correctItem) {
+            const others = VOCABULARY.filter(v => v.pinyin !== correctItem.pinyin);
+            const wrongOptions = shuffle(others).slice(0, 3).map(v => v.pinyin);
+            return shuffle([correctItem.pinyin, ...wrongOptions]);
+        }
+
+        // 渲染选项
+        function renderOptions(options, correctPinyin) {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn bg-white text-gray-800 text-2xl font-bold py-4 rounded-xl shadow-md border-b-4 border-gray-200 hover:bg-gray-50 active:border-b-0 active:translate-y-1';
+                btn.textContent = opt;
+                
+                // 依次入场动画
+                btn.style.opacity = '0';
+                anime({
+                    targets: btn,
+                    opacity: [0, 1],
+                    translateY: [20, 0],
+                    delay: index * 100,
+                    duration: 400,
+                    easing: 'easeOutQuad'
+                });
+
+                btn.onclick = () => handleAnswer(btn, opt, correctPinyin);
+                container.appendChild(btn);
+            });
+        }
+
+        // 5. 处理回答
+        function handleAnswer(btn, selected, correct) {
+            if (STATE.isAnswering) return;
+            STATE.isAnswering = true;
+
+            const isCorrect = selected === correct;
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                STATE.score++;
+                updateScoreUI();
+                audios.correct.play();
+                showConfetti();
+            } else {
+                btn.classList.add('wrong');
+                audios.wrong.play();
+                // 高亮正确答案
+                const buttons = document.querySelectorAll('.option-btn');
+                buttons.forEach(b => {
+                    if (b.textContent === correct) b.classList.add('correct');
+                });
+            }
+
+            // 延迟进入下一题。答错停留更久：孩子需要时间看清被高亮的正确答案，
+            // 1.5s 一闪而过起不到纠错作用（答对只需确认，保持节奏）
+            const advanceDelay = isCorrect ? 1500 : 3000;
+            setTimeout(() => {
+                STATE.currentQIndex++;
+                if (STATE.currentQIndex < STATE.currentQuestions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, advanceDelay);
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score-display').textContent = STATE.score;
+        }
+
+        // 6. 结算
+        function showResult() {
+            switchScreen('result');
+            document.getElementById('final-score').textContent = STATE.score;
+            
+            const total = STATE.currentQuestions.length;
+            const msgEl = document.getElementById('result-msg');
+            
+            if (STATE.score === total) {
+                msgEl.textContent = "太厉害了！全对！🌟";
+            } else if (STATE.score >= total * 0.8) {
+                msgEl.textContent = "真棒！继续加油！✨";
+            } else {
+                msgEl.textContent = "再接再厉哦！💪";
+            }
+
+            audios.end.play();
+
+            anime({
+                targets: '#result-card',
+                scale: [0.8, 1],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutElastic(1, .8)'
+            });
+        }
+
+        // 简单的粒子效果
+        function showConfetti() {
+            // 这里可以使用 canvas 绘制简单的烟花或星星，为简化代码，仅做简单示意
+            // 实际项目中可引入 canvas-confetti 库
+        }
+
+        // --- 事件绑定 ---
+        document.getElementById('start-btn').onclick = () => {
+            audios.welcome.play().catch(() => {}); // 尝试播放，可能被浏览器拦截
+            switchScreen('level');
+        };
+
+        document.getElementById('back-home-btn').onclick = () => switchScreen('home');
+        
+        document.getElementById('replay-btn').onclick = () => {
+            startGame(STATE.currentGroupIndex);
+        };
+
+        document.getElementById('home-btn').onclick = () => switchScreen('home');
+
+        // --- 初始化 ---
+        initGroups();
+        renderLevelScreen();
+
+    </script>
+
+    <!-- v1.1: 课件版本注记（无行为变更，验证发布门控） -->
+<!-- act2: 零 token 回归触发验证（无行为变更） -->
+</body>
+
+</html>

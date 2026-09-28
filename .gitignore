@@ -1,0 +1,14 @@
+# gherkai 运行产物
+reports/
+*.log
+
+# 语言工具链
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/
