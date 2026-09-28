@@ -22,6 +22,6 @@ cd app && python3 -m http.server 8080
 
 （用例与演示步骤随后补充。）
 
-## 来源
+## 第三方依赖
 
-被测应用取自 [demo-shizi-tiaozhan](https://github.com/zhiyanliu/demo-shizi-tiaozhan) 仓库的课件部分。前端依赖 Tailwind 与 anime.js 均为 MIT 许可的第三方库，随仓库带一份本地副本；图片与音频沿用原仓库资产。
+被测应用的前端依赖 Tailwind 与 anime.js 均为 MIT 许可的第三方库，随仓库带一份本地副本，运行时不访问外网。

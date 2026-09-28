@@ -1,0 +1,19 @@
+# 只给 steps/ 里 Nova Act 侧判定逻辑的本地单测用：pytest 起本地浏览器测 steps/_checks.py。
+# 实际运行时 worker 自带 Playwright，不读这里。
+#   uv sync && uv run playwright install chromium
+#   uv run pytest
+[project]
+name = "gherkai-webapp-demo"
+version = "0.0.0"
+description = "识字大挑战的 gherkai 用例（本文件只声明本地单测的开发依赖）"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = ["pytest", "playwright"]
+
+[tool.pytest.ini_options]
+testpaths = ["steps"]
