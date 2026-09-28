@@ -329,3 +329,13 @@ test("真应用：主页上判进度与得分要失败（答题页未显示）",
   await assert.rejects(checks.progressIs(page, "1", "10", 800), (e: unknown) => e instanceof DeterministicAssertion && /答题页未显示/.test((e as Error).message));
   await assert.rejects(checks.scoreIs(page, "0", 800), (e: unknown) => e instanceof DeterministicAssertion && /答题页未显示/.test((e as Error).message));
 });
+
+test("真应用：答对后立刻再点另一个选项被忽略", async () => {
+  await page.goto(APP_INDEX.href);
+  await page.waitForSelector("#start-btn");
+  await page.click("#start-btn");
+  await page.locator("#level-grid button").first().click();
+  await page.waitForSelector(".option-btn");
+  await checks.answerThenReclickIsIgnored(page);
+  assert.equal((await page.locator("#score-display").textContent())?.trim(), "1");
+});

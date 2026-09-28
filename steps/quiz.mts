@@ -11,7 +11,7 @@ import {
   answerCorrect,
   answerWrong,
   autoAdvance,
-  clickAnotherUnhighlightedOption,
+  answerThenReclickIsIgnored,
   highlightCountsAre,
   optionCountIs,
   progressIs,
@@ -52,11 +52,11 @@ deterministic(
 );
 
 deterministic(
-  "再点一个尚未高亮的拼音选项",
-  async ({ page }) => { await clickAnotherUnhighlightedOption(page); },
+  "作答后立刻再点其它选项，得分与高亮都不变",
+  async ({ page }) => { await answerThenReclickIsIgnored(page); },
   {
-    description: "作答之后再点一个没有高亮的选项，用于验证一题只答一次；要紧跟在作答步之后（不走 AI）",
-    example: "When 再点一个尚未高亮的拼音选项",
+    description: "答对当前题后在切题前立刻再点一个未高亮的选项，断言仍在同一题、得分只加 1、只有一个答对高亮（一题只答一次；不走 AI）",
+    example: "Then 作答后立刻再点其它选项，得分与高亮都不变",
   },
 );
 

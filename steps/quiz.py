@@ -49,11 +49,11 @@ def answer_wrong(ctx) -> None:
     _checks.answer_wrong(ctx.page)
 
 
-@deterministic(r'再点一个尚未高亮的拼音选项',
-               description="作答之后再点一个没有高亮的选项，用于验证一题只答一次；要紧跟在作答步之后（不走 AI）",
-               example='When 再点一个尚未高亮的拼音选项')
-def click_another_unhighlighted_option(ctx) -> None:
-    _checks.click_another_unhighlighted_option(ctx.page)
+@deterministic(r'作答后立刻再点其它选项，得分与高亮都不变',
+               description="答对当前题后在切题前立刻再点一个未高亮的选项，断言仍在同一题、得分只加 1、只有一个答对高亮（一题只答一次；不走 AI）",
+               example='Then 作答后立刻再点其它选项，得分与高亮都不变')
+def answer_then_reclick_is_ignored(ctx) -> None:
+    _checks.answer_then_reclick_is_ignored(ctx.page)
 
 
 @deterministic(r'处于答对状态的选项有 "(?P<correct>\d+)" 个[，,]\s*处于答错状态的选项有 "(?P<wrong>\d+)" 个',

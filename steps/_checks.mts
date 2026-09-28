@@ -318,6 +318,21 @@ export async function clickAnotherUnhighlightedOption(page: Page, timeoutMs = DE
 
 // --- 判定：作答后的高亮状态与自动切题 ---
 /** 处于答对状态的选项 correct 个、答错状态的选项 wrong 个。 */
+/** 答对当前题后立刻再点一个未高亮的选项，断言第二次点击被忽略：仍在同一题、得分只加 1、恰好一个答对高亮、没有答错高亮。
+ *  放在同一步里做，是因为答对后 1.5 秒就切题，拆成多步时步间的派发与取证耗时会超过这个窗口。 */
+export async function answerThenReclickIsIgnored(page: Page, timeoutMs = DEFAULT_TIMEOUT_MS): Promise<void> {
+  const question = await liveQuestion(page);
+  const before = Number((await page.locator(SEL_SCORE).textContent())?.trim() || "0");
+  await answerCorrect(page, timeoutMs);
+  await clickAnotherUnhighlightedOption(page, timeoutMs);
+  const now = await liveQuestion(page);
+  if (now !== question) {
+    throw new DeterministicAssertion(`再点之后题号从 ${question} 变成了 ${now}：第二次点击落到了下一题（${where(page, SEL_OPTIONS)}）`);
+  }
+  await highlightCountsAre(page, 1, 0);
+  await expectText(page, SEL_SCORE, String(before + 1), "再点之后的得分", HIGHLIGHT_TIMEOUT_MS);
+}
+
 export async function highlightCountsAre(page: Page, correct: number, wrong: number, timeoutMs = HIGHLIGHT_TIMEOUT_MS): Promise<void> {
   const selCorrect = `${SEL_OPTIONS}.${STATE_CORRECT}`;
   const selWrong = `${SEL_OPTIONS}.${STATE_WRONG}`;

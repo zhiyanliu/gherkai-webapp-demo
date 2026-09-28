@@ -354,3 +354,14 @@ def test_progress_and_score_require_game_screen(page):
         _checks.progress_is(page, "1", "10", timeout_ms=800)
     with pytest.raises(AssertionError, match="答题页未显示"):
         _checks.score_is(page, "0", timeout_ms=800)
+
+
+def test_answer_then_reclick_is_ignored_on_real_app(page):
+    """真应用：答对后立刻再点另一个选项被忽略（同一题、得分 1、一个答对高亮）。"""
+    page.goto(APP_INDEX.as_uri())
+    page.wait_for_selector("#start-btn")
+    page.click("#start-btn")
+    page.locator("#level-grid button").first.click()
+    page.wait_for_selector(".option-btn")
+    _checks.answer_then_reclick_is_ignored(page)
+    assert page.locator("#score-display").inner_text() == "1"

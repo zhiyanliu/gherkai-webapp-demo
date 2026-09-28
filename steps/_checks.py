@@ -254,6 +254,23 @@ def click_another_unhighlighted_option(page: Page, timeout_ms: int = DEFAULT_TIM
 
 
 # --- 判定：作答后的高亮状态与自动切题 ---
+def answer_then_reclick_is_ignored(page: Page, timeout_ms: int = DEFAULT_TIMEOUT_MS) -> None:
+    """答对当前题后立刻再点一个未高亮的选项，断言第二次点击被忽略：仍在同一题、得分只加 1、恰好一个答对高亮、没有答错高亮。
+
+    为什么是一步而不是「作答」「再点」「判高亮」三步：答对后页面只停留 1.5 秒就自动切题，三步之间的派发与取证耗时
+    会超过这个窗口，第二次点击就落到下一题上。瞬态窗口内的多个动作要放进同一个确定性 step 里完成。
+    """
+    question = _live_question(page)
+    before = int(_safe_text(page, SEL_SCORE) or "0")
+    answer_correct(page, timeout_ms)
+    click_another_unhighlighted_option(page, timeout_ms)
+    now = _live_question(page)
+    if now != question:
+        raise AssertionError(f"再点之后题号从 {question} 变成了 {now}：第二次点击落到了下一题（{_where(page, SEL_OPTIONS)}）")
+    highlight_counts_are(page, 1, 0)
+    _expect_text(page, SEL_SCORE, str(before + 1), "再点之后的得分", HIGHLIGHT_TIMEOUT_MS)
+
+
 def highlight_counts_are(page: Page, correct: int, wrong: int, timeout_ms: int = HIGHLIGHT_TIMEOUT_MS) -> None:
     """处于答对状态的选项 correct 个、答错状态的选项 wrong 个。"""
     loc_correct = page.locator(f"{SEL_OPTIONS}.{STATE_CORRECT}")

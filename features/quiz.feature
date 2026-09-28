@@ -37,10 +37,8 @@ Feature: 答题页
     Given 打开 "http://localhost:8080"
     When "点击开始挑战按钮"
     And "选择第 1 组"
-    And 选择当前生字的正确拼音
-    And 再点一个尚未高亮的拼音选项
-    Then 得分为 "1"
-    And 处于答对状态的选项有 "1" 个，处于答错状态的选项有 "0" 个
+    Then 作答后立刻再点其它选项，得分与高亮都不变
+    And 得分为 "1"
 
   @regression @engine:novaact
   Scenario: 英文界面下答对加一分
