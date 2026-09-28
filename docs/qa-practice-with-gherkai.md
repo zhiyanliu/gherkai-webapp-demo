@@ -1,36 +1,38 @@
 # 用 gherkai 做 UI 测试：QA 团队的工作方法
 
-这份文档讲的是方法：一个 QA 团队怎样把需求变成可运行的用例，怎样给 AI agent 派活，怎样验收它的产出，怎样在失败时修正。命令与选项的说明不在这里，在 [gherkai 用户指南](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/README.md)。本仓库就是按这套方法组织的一个项目，可以对照着看。
+这份文档讲一个 QA 团队在有 AI agent 的前提下怎样用 gherkai：谁做什么，需求怎样变成可运行的用例，怎样给 agent 派活、验收它的产出，失败时怎样修正。概念不在这里讲：gherkai 是什么、一步三种执行路径、AI 判定与确定性代码判定、本机与云端后端，看 [gherkai 的 README](https://github.com/zhiyanliu/gherkai) 与[用户指南](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/README.md)；这些概念在本项目里的实例见[概念对照](./concepts-in-this-project.md)。命令与选项以用户指南为准。
+
+整条流水线一句话：**需求 → 测试设计（QA，落成简报）→ 施工（agent，产出 feature 与 steps）→ 验收（QA 读用例与预检，测试开发 review 代码）→ 运行（QA 发起）→ 修正（agent 按证据处置并汇报）→ 沉淀。** QA 不手写 feature，也不读代码；agent 不决定测什么，也不自行运行。
 
 ## 1. 分工
 
 | 角色 | 做什么 | 不做什么 |
 |---|---|---|
-| QA / 测试工程师 | 读需求、切功能域、圈出必须精确的检查、给 agent 写测试任务简报、review 用例文本、发起运行、读结果 | 不写代码 |
-| 测试开发 | 维护 `steps/` 里的确定性 step 代码、本地单测、把 steps 带到云端镜像 | 不替 QA 决定测什么 |
+| QA / 测试工程师 | 读需求、做测试设计（切功能域、列场景、圈精确检查）、写测试任务简报、验收用例文本与预检结果、发起运行、读结果、决定处置 | 不写 feature 文本，不写代码 |
+| 测试开发 | review 与维护 `steps/` 里的确定性 step 代码与单测、把 steps 带到云端镜像 | 不替 QA 决定测什么 |
 | 部署方 | 部署与维护团队共享的云端后端 | 不参与写用例 |
 | AI agent（装了 gherkai skill 的 Claude Code、Codex 等） | 按简报写 feature 与确定性 step、自查注册与预检、读失败证据、给出修正建议并汇报 | 不自行决定真跑、不改需求口径 |
 
-AI agent 不是替 QA 决定测什么的人，它替 QA 做施工：把测试设计变成 Gherkin 与代码，并用工具核对。测什么、精确到什么程度，仍是 QA 的判断。
+agent 替 QA 做的是施工：把测试设计变成 Gherkin 与代码，并用工具核对。测什么、精确到什么程度，仍是 QA 的判断。
 
 ## 2. 一次性立项
 
 项目开始时做一次，之后每张简报都不必重复交代：
 
-1. 装命令行与本机 worker（`uv tool install 'gherkai[local]'`，Midscene 引擎另装 `npm i -g @gherkai/worker-midscene`）。
-2. 把 gherkai 的 agent skill 装进项目：`gherkai skill install --agent all`。它会问是否把一行提示写进项目的 `CLAUDE.md` 与 `AGENTS.md`，答是。
-3. 写项目约定，放在 agent 一定会读到的地方（本仓库是 [docs/ui-testing-conventions.md](./ui-testing-conventions.md)，`CLAUDE.md` 与 `AGENTS.md` 各指向它）：用例目录布局、tag 约定、scope 命名、被测地址、界面语言、默认不真跑。
-4. 确认被测应用有一个稍后运行时可达的地址。本机应用用 `--expose-local` 起隧道即可，不必先部署。
+1. 装命令行与本机 worker：`uv tool install 'gherkai[local]'`；Midscene 引擎另装 `npm i -g @gherkai/worker-midscene`。
+2. 把 gherkai 的 agent skill 装进项目：`gherkai skill install --agent all`。它会问是否把一行提示写进项目的 `CLAUDE.md` 与 `AGENTS.md`，答是。skill 与命令行同版本，每人本机自装，不入库。
+3. 写项目约定，放在 agent 一定会读到的地方。本项目是 [ui-testing-conventions.md](./ui-testing-conventions.md)，`CLAUDE.md` 与 `AGENTS.md` 各指向它：目录与命名、tag 约定、被测地址、界面语言、每张简报都默认的约束与交付、默认不真跑。
+4. 确认被测应用有一个运行时可达的地址。本机应用用 `--expose-local` 起隧道即可，不必先部署。
 
-## 3. QA 的备料
+## 3. 测试设计：QA 的备料
 
-好用例来自好输入。给 agent 派活之前 QA 准备三样：
+给 agent 派活之前 QA 做三件事，产物是一张简报，不是 feature 文件。
 
-**需求文档作唯一事实源。** 用例的每条期望都能在需求里找到出处。需求含糊的地方先问产品，不让 agent 猜。本仓库的需求是 [docs/product-requirements.md](./product-requirements.md)。
+**需求文档作唯一事实源。** 用例的每条期望都能在需求里找到出处。需求含糊的地方先问产品，不让 agent 猜。本项目的需求是 [product-requirements.md](./product-requirements.md)。
 
-**按功能域切分。** 一个功能域一份 feature 文件，切分依据是需求文档的功能条目，与组织 Playwright 或手工用例的方式一样。每条需求的验收要点展开成 scenario。工具对切分没有要求，它只规定三件事：用例写在 `.feature` 里；一条 scenario 是一个独立判定单元；需要接着上一条页面状态的用 `@scope` 编进同一个浏览器会话。
+**按功能域切分，列出场景。** 一个功能域一份 feature 文件，切分依据是需求文档的功能条目，与组织 Playwright 或手工用例的方式一样。每条需求的验收要点展开成场景，每个场景一句话：前置、动作、期望。工具对切分没有要求，它只规定三件事：用例写在 `.feature` 里；一条 scenario 是一个独立判定单元；需要接着上一条页面状态的用 `@scope` 编进同一个浏览器会话。
 
-**圈出必须精确的检查。** 每条 scenario 的期望分两类，判据如下：
+**圈出必须精确的检查。** 每个场景的期望分两类，判据：
 
 | 走确定性 step（代码判定） | 交给 AI 判定 |
 |---|---|
@@ -41,35 +43,39 @@ AI agent 不是替 QA 决定测什么的人，它替 QA 做施工：把测试设
 
 成本与速度是判据的一部分：AI 步每判一次调用一次模型，一步几秒到几十秒；确定性 step 零模型费用、毫秒级完成。连答十题这类重复动作，交给 AI 慢且贵，写成确定性 step 是自然选择。
 
-**界面语言也是事实。** 被测界面是什么语言、有没有多语言，写进简报。引擎怎么选是工具的事：agent 会按界面语言给 scenario 标引擎并说明理由。
+界面语言也是事实，写进简报。引擎怎么选是工具的事：agent 会按界面语言给 scenario 标引擎并说明理由。
 
-## 4. 给 agent 派活：测试任务简报
+## 4. 派活：测试任务简报
 
-派活用简报，不用一句话。简报是 QA 平时给同事派活时说的那几句话，写成固定的小标题：功能域与对应需求、被测地址与界面语言、要覆盖的场景、必须精确的检查、约束、交付。模板在 [docs/test-brief-template.md](./test-brief-template.md)，可以直接复制；本仓库每个功能域的简报在 [docs/briefs/](./briefs/)。
-
-一张简报对应一个功能域，产出一份 feature 文件。简报固定形状的意义是让产出可预期、可 review，团队里换谁写都得到同一形状的用例。
+派活用简报，不用一句话。简报是 QA 平时给同事派活时说的那几句话，写成固定的小标题：功能域与对应需求、被测地址与界面语言、要覆盖的场景、必须精确的检查、交给 AI 判定的检查、补充约束。模板在 [test-brief-template.md](./test-brief-template.md)，可以直接复制；本项目每个功能域的简报在 [briefs/](./briefs/)。一张简报对应一个功能域，产出一份 feature 文件。
 
 给 agent 的信息分三层，各归各处，不重复：
 
 | 层 | 放哪 | 回答什么 | 例子 |
 |---|---|---|---|
 | 工具层 | gherkai 的 agent skill | 怎么把 gherkai 用对 | 先预检再运行、确定性 step 怎么写稳、失败先 `explain` |
-| 项目层 | `docs/ui-testing-conventions.md`，经 `CLAUDE.md` 与 `AGENTS.md` 进入上下文 | 这个团队怎么做 | 目录与命名、tag 约定、被测地址、每张简报默认的约束与交付 |
+| 项目层 | `ui-testing-conventions.md`，经 `CLAUDE.md` 与 `AGENTS.md` 进入上下文 | 这个团队怎么做 | 目录与命名、tag 约定、被测地址、每张简报默认的约束与交付 |
 | 任务层 | 一张简报 | 这次测什么 | 功能域、场景、必须精确的检查 |
 
-判据一句话：放到任何一张简报里都成立的内容，不属于简报，往项目层放；工具本身的用法，不写进项目约定，交给 skill。
+判据一句话：放到任何一张简报里都成立的内容不属于简报，往项目层放；工具本身的用法不写进项目约定，交给 skill。
 
-## 5. 验收 agent 的产出
+## 5. 施工：agent 做什么
+
+把简报全文作为一次对话的输入交给 agent。它会读项目约定与需求、看被测应用、写 feature、写两个引擎的确定性 step 与单测，然后自查：两个引擎各查一遍 `gherkai list-deterministic --engine <引擎>` 确认注册，`gherkai plan` 看每步标注与 job 数，最后按项目约定的交付物汇报。它不实际运行。
+
+本项目的两次记录可以作参照：选关页这种四个场景、四条确定性 step 的简报，从读料到交付约 15 分钟；答题页那种五个场景、八条确定性 step、带题库抽取与切题时长探针的简报，约 40 分钟。时间花在理解与施工上，不在下载。
+
+## 6. 验收
 
 QA 验收三样，都不需要读代码：
 
-- **feature 文本**：像不像一条能拿给产品确认的验收用例；导航步写的是需求里的地址；AI 断言是页面级陈述而不是子串规则；精确检查落在了确定性 step 上。
+- **feature 文本**：像不像一条能拿给产品确认的验收用例；导航步写的是需求里的地址；AI 断言是页面级陈述而不是子串规则；简报圈出的精确检查都落在了确定性 step 上；文件头的注释把引擎选择与分工理由说清了。
 - **预检结果**：`gherkai plan` 的输出，每个 step 标了走确定性还是 AI，没有冲突标记；job 数就是这次运行要开的浏览器会话数，也就是费用规模。
-- **注册清单**：`gherkai list-deterministic --engine <引擎>` 两个引擎各一份，新写的 step 都在。
+- **注册清单**：两个引擎的 `gherkai list-deterministic` 各一份，新写的 step 都在。
 
-确定性 step 的代码质量归测试开发 review：判定带等待与超时、失败消息带现场、判定逻辑与注册分离、有本地单测。
+确定性 step 的代码归测试开发 review：判定带等待与超时、失败消息带现场、判定逻辑与注册分离、有本地单测、两侧成对。agent 在汇报里提出的改进建议（例如某条判定没有先确认所在页面已显示）由测试开发决定采不采。
 
-## 6. 运行与修正
+## 7. 运行与修正
 
 运行由 QA 发起。本机用 `gherkai run`，团队共享的云端后端用 `gherkai submit` 加 `gherkai status --wait`。被测应用只在本机时加 `--expose-local <地址>`，运行期间本机保持开机联网。
 
@@ -82,14 +88,14 @@ QA 验收三样，都不需要读代码：
 
 每一种处置都要写进汇报。改断言、换引擎都动了验收口径，不说等于悄悄放宽了用例。让 agent 做修正时，它会按同样的顺序处置并汇报。
 
-## 7. 沉淀
+## 8. 沉淀
 
 - 确定性 step 按主题分文件放在 `steps/`，判定逻辑放 `_` 前缀的辅助模块并配单测，两个引擎成对维护。
 - 用了云端后端的团队，改了 `steps/` 要重新构建 worker 镜像并推送，云端读的是镜像里那份。
 - CI 接 `gherkai run` 的退出码，或 `submit` 之后 `status --wait` 的退出码。
 
-## 8. 两种 agent 的差别
+## 9. 两种 agent 的差别
 
 Claude Code 读项目里的 `.claude/skills/`，Codex 读 `.agents/skills/`，`gherkai skill install --agent all` 两处都装。项目约定分别经 `CLAUDE.md` 与 `AGENTS.md` 进入两者的上下文。简报的给法一样：把简报全文作为一次对话的输入。
 
-（两种 agent 在本项目上各走一遍之后，操作差异与注意事项补在这里。）
+（Codex 在本项目上走一遍之后，操作差异与注意事项补在这里。）
