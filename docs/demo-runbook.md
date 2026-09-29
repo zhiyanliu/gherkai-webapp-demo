@@ -15,7 +15,7 @@
    ngrok config check                   # 隧道：已配置 authtoken
    ```
 
-2. AI agent：Claude Code 或 Codex 已登录并可正常对话。演示中只安装 skill 并展示其入口，不用它生成用例。
+2. AI agent（Claude Code 或 Codex）：主时间线不需要它在场，`gherkai skill install` 只是把 skill 文件装进项目目录；只有文末「自行体验」一节需要已安装并登录的 agent。
 
 3. 云端后端（可选段使用）：部署方已将云端后端部署为与命令行相同的版本，并按 [云端后端演示的准备](./cloud-demo-preparation.md) 注册 variant `demo`。核对命令：
 
