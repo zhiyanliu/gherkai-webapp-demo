@@ -22,6 +22,7 @@ cd app && python3 -m http.server 8080
 - 需求：[docs/product-requirements.md](./docs/product-requirements.md)
 - 测试约定（AI agent 与测试人员均须遵守）：[docs/ui-testing-conventions.md](./docs/ui-testing-conventions.md)
 - 测试任务简报模板：[docs/test-brief-template.md](./docs/test-brief-template.md)；本项目各功能域的简报在 [docs/briefs/](./docs/briefs/)
+- 云端后端演示的准备（把本项目的 step 打进 worker 镜像并注册为 variant）：[docs/cloud-demo-preparation.md](./docs/cloud-demo-preparation.md)
 - 用例：`features/` 中每个功能域对应一份用例文件；确定性 step 代码位于 `steps/`，判定逻辑位于 `_` 前缀的辅助模块中，并配有本地单元测试
 
 本地单元测试（不启动云端浏览器，不调用模型）：
