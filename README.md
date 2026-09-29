@@ -57,7 +57,7 @@ uv sync && uv run playwright install chromium && uv run pytest       # Python �
 npm install && npm run test:steps                                    # TypeScript 侧
 ```
 
-（演示步骤随后补充。）
+演示流程（30 分钟时间线、可逐段复制的命令）见 [docs/demo-runbook.md](./docs/demo-runbook.md)。
 
 ## 许可证
 
