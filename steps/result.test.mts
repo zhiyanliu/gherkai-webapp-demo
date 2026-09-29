@@ -4,7 +4,8 @@
 // 与 test_result.py 同一套夹具：合成页（与应用同结构的最小四页骨架加可配置的答题流程：题数、几百毫秒的切题时长、
 // 答完第几题进结算页、跳题、不切题、初始显示哪一页、结算页上的得分与评语；题目取自题库副本里的生字）走通过与失败两条路；
 // 真应用（file:// 打开 app/index.html，英文界面加 ?lang=en）验证选择器、真实文案与真实的 1.5 秒 / 3 秒切题节奏下
-// 连答 10 题能到结算页；再玩一次与返回主页复用 _checks 与 _level_select 里的判定。
+// 连答 10 题能到结算页；再玩一次与返回主页复用 _checks 与 _level_select 里的判定；另有一条在同一个页面上依次走完
+// 「答完 10 题、再玩一次、再答完 10 题、返回主页」，对应 features/result.feature 里同一 @scope 串行执行的三条场景。
 //
 // 运行：npm install && npx playwright install chromium && npm run test:steps
 import { after, before, beforeEach, afterEach, test } from "node:test";
@@ -329,6 +330,26 @@ test("真应用：英文界面下全部答对", async () => {
   await result.resultMessageIs(page, "Amazing! All correct! 🌟");
   await hasVisibleButton(page, "Play Again");
   await hasVisibleButton(page, "Back to Home");
+});
+
+// 与 features/result.feature 里 @scope:result-replay-and-home 的三条场景同一条链、同一个页面：答完 10 题到结算页 →
+// 再玩一次回到第 1 题、得分清零 → 再答完 10 题到结算页 → 返回主页。关键在第二次「依次答对全部 10 题」：再玩一次后进度回到
+// 第 1 题，这条 step「要在第 1 题时用」的前置成立，答完仍进结算页、得分仍是 10。
+test("真应用：同一个页面上答完 10 题、再玩一次、再答完 10 题、返回主页", async () => {
+  await enterGroup1();
+  await result.answerAllCorrect(page, 10);
+  await result.finalScoreIs(page, "10");
+  await page.click("#replay-btn");
+  await checks.progressIs(page, "1", "10");
+  await checks.scoreIs(page, "0");
+  const records = await result.answerAllCorrect(page, 10);
+  assert.deepEqual(records.map((r) => r.question), Array.from({ length: 10 }, (_, i) => i + 1));
+  assert.equal(records.at(-1)!.outcome, "result");
+  await result.resultTitleIs(page, "挑战完成！");
+  await result.finalScoreIs(page, "10");
+  await result.resultMessageIs(page, MSG_PERFECT);
+  await page.click("#home-btn");
+  await hasVisibleButton(page, "开始挑战");
 });
 
 test("真应用：答题页上判结算页要失败（结算页未显示）", async () => {

@@ -2,7 +2,7 @@
 # 对应简报：docs/briefs/result.md
 Feature: 结算页
 
-  @smoke @engine:midscene
+  @smoke @scope:result-replay-and-home @engine:midscene @timeout:600
   Scenario: 全部答对
     Given 打开 "http://localhost:8080"
     When "点击开始挑战按钮"
@@ -35,24 +35,18 @@ Feature: 结算页
     And 结算页的最终得分是 "8"
     And 结算页的评语是 "真棒！继续加油！✨"
 
-  @smoke @engine:midscene
+  @smoke @scope:result-replay-and-home @engine:midscene @timeout:600
   Scenario: 再玩一次回到第 1 题且得分清零
-    Given 打开 "http://localhost:8080"
-    When "点击开始挑战按钮"
-    And "点击第 1 组"
-    And 依次答对全部 "10" 题
-    Then 结算页的最终得分是 "10"
+    Given 结算页的最终得分是 "10"
     When "点击再玩一次按钮"
     Then 进度显示 "1 / 10"
     And 得分为 "0"
     And "当前是答题页：生字卡上显示一个汉字，下方是拼音选项"
 
-  @regression @engine:midscene
+  @smoke @scope:result-replay-and-home @engine:midscene @timeout:600
   Scenario: 从结算页返回主页
-    Given 打开 "http://localhost:8080"
-    When "点击开始挑战按钮"
-    And "点击第 1 组"
-    And 依次答对全部 "10" 题
+    Given 进度显示 "1 / 10"
+    When 依次答对全部 "10" 题
     Then 结算页的标题是 "挑战完成！"
     When "点击返回主页按钮"
     Then 页面上有 "开始挑战" 按钮

@@ -6,7 +6,8 @@
   题数、切题时长（几百毫秒，让 10 题也秒级跑完）、答完第几题进结算页、作答后跳到哪一题、不切题、初始显示哪一页、
   结算页上的得分与评语。题目取自题库副本里的生字，这样 _checks 的按题库作答能照常工作。用来走通过与失败两条路。
 - 真应用：file:// 打开 app/index.html（英文界面加 ?lang=en），从主页点进第 1 组，验证选择器、真实文案与真实的
-  1.5 秒 / 3 秒切题节奏下连答 10 题能到结算页；再玩一次与返回主页复用 _checks 与 _level_select 里的判定。
+  1.5 秒 / 3 秒切题节奏下连答 10 题能到结算页；再玩一次与返回主页复用 _checks 与 _level_select 里的判定；另有一条在同一个页面上
+  依次走完「答完 10 题、再玩一次、再答完 10 题、返回主页」，对应 features/result.feature 里同一 @scope 串行执行的三条场景。
 
 运行：uv sync && uv run playwright install chromium && uv run pytest
 """
@@ -337,6 +338,26 @@ def test_real_app_english_all_correct(page):
     _result.result_message_is(page, "Amazing! All correct! 🌟")
     _level_select.has_visible_button(page, "Play Again")
     _level_select.has_visible_button(page, "Back to Home")
+
+
+def test_real_app_finish_replay_finish_home_in_one_session(page):
+    """与 features/result.feature 里 @scope:result-replay-and-home 的三条场景同一条链、同一个页面：答完 10 题到结算页 →
+    再玩一次回到第 1 题、得分清零 → 再答完 10 题到结算页 → 返回主页。关键在第二次「依次答对全部 10 题」：再玩一次后进度回到
+    第 1 题，这条 step「要在第 1 题时用」的前置成立，答完仍进结算页、得分仍是 10。"""
+    enter_group_1(page)
+    _result.answer_all_correct(page, 10)
+    _result.final_score_is(page, "10")
+    page.click("#replay-btn")
+    _checks.progress_is(page, "1", "10")
+    _checks.score_is(page, "0")
+    records = _result.answer_all_correct(page, 10)
+    assert [r["question"] for r in records] == list(range(1, 11))
+    assert records[-1]["outcome"] == "result"
+    _result.result_title_is(page, "挑战完成！")
+    _result.final_score_is(page, "10")
+    _result.result_message_is(page, MSG_PERFECT)
+    page.click("#home-btn")
+    _level_select.has_visible_button(page, "开始挑战")
 
 
 def test_real_app_result_checks_fail_on_quiz_page(page):
