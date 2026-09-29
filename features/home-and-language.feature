@@ -36,7 +36,7 @@ Feature: 主页与界面语言
   Scenario: 答题中途切换语言不丢状态
     Given 打开 "http://localhost:8080"
     When "点击开始挑战按钮"
-    And "选择第 1 组"
+    And "点击第 1 组"
     And 选择当前生字的正确拼音
     Then 得分为 "1"
     And 进度显示 "2 / 10"

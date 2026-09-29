@@ -6,7 +6,7 @@ Feature: 答题页
   Scenario: 进入第 1 组显示第 1 题
     Given 打开 "http://localhost:8080"
     When "点击开始挑战按钮"
-    And "选择第 1 组"
+    And "点击第 1 组"
     Then "生字卡上显示的是一个汉字"
     And 拼音选项有 "4" 个
     And 进度显示 "1 / 10"
@@ -16,7 +16,7 @@ Feature: 答题页
   Scenario: 答对加一分并自动进入下一题
     Given 打开 "http://localhost:8080"
     When "点击开始挑战按钮"
-    And "选择第 1 组"
+    And "点击第 1 组"
     And 选择当前生字的正确拼音
     Then 处于答对状态的选项有 "1" 个，处于答错状态的选项有 "0" 个
     And 得分为 "1"
@@ -26,7 +26,7 @@ Feature: 答题页
   Scenario: 答错不加分并高亮正确答案
     Given 打开 "http://localhost:8080"
     When "点击开始挑战按钮"
-    And "选择第 1 组"
+    And "点击第 1 组"
     And 选择一个错误的拼音
     Then 处于答对状态的选项有 "1" 个，处于答错状态的选项有 "1" 个
     And 得分为 "0"
@@ -36,7 +36,7 @@ Feature: 答题页
   Scenario: 一题只答一次
     Given 打开 "http://localhost:8080"
     When "点击开始挑战按钮"
-    And "选择第 1 组"
+    And "点击第 1 组"
     Then 作答后立刻再点其它选项，得分与高亮都不变
     And 得分为 "1"
 
