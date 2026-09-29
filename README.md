@@ -36,7 +36,7 @@ gherkai-webapp-demo/
 └── .claude/skills/、.agents/skills/  gherkai 的 agent skill。每人本机安装，不入库
 ```
 
-## 预备阅读
+## 阅读指引
 
 - gherkai 的定位与工作原理：参见 [gherkai 的 README](https://github.com/zhiyanliu/gherkai) 与[用户指南](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/README.md)。本仓库不重复介绍这些概念。
 - 上述概念在本项目中的对应内容：[docs/concepts-in-this-project.md](./docs/concepts-in-this-project.md)，以对照表形式列出。
@@ -57,7 +57,7 @@ uv sync && uv run playwright install chromium && uv run pytest       # Python �
 npm install && npm run test:steps                                    # TypeScript 侧
 ```
 
-演示流程（30 分钟时间线、可逐段复制的命令）见 [docs/demo-runbook.md](./docs/demo-runbook.md)。
+演示流程（30 分钟时间线）见 [docs/demo-runbook.md](./docs/demo-runbook.md)。
 
 ## 许可证
 
