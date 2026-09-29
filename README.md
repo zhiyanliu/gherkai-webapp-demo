@@ -11,6 +11,31 @@ cd app && python3 -m http.server 8080
 # 浏览器打开 http://localhost:8080 ；英文界面 http://localhost:8080/?lang=en
 ```
 
+## 仓库内容
+
+下表按目录说明每部分是什么、由谁提供或生成、由谁负责维护。三类来源：**输入**由产品或 QA 提供；**生成**由 AI agent 按简报产出、经人验收后提交；**维护**由人负责。
+
+```text
+gherkai-webapp-demo/
+├── app/                              被测应用（纯静态页面）。输入：开发团队提供
+├── docs/
+│   ├── product-requirements.md       需求文档。输入：产品提供；用例期望的唯一来源
+│   ├── ui-testing-conventions.md     测试约定。维护：QA 与测试开发；agent 与人都遵守
+│   ├── test-brief-template.md        测试任务简报模板。维护：QA
+│   ├── briefs/                       四份简报（每个功能域一份）。输入：QA 的测试设计产物
+│   ├── qa-practice-with-gherkai.md   QA 团队的工作方法。维护：QA
+│   ├── concepts-in-this-project.md   gherkai 概念与本项目实例的对照。维护：测试开发
+│   ├── cloud-demo-preparation.md     云端后端演示的准备。维护：部署方与测试开发
+│   └── demo-runbook.md               演示 runbook。维护：演示者
+├── features/                         Gherkin 用例，每个功能域一份。生成：agent 按简报产出，QA 验收
+├── steps/                            两个引擎的确定性 step 代码、判定逻辑与单测。生成：agent 产出，测试开发 review 并维护
+├── deploy/                           worker 定制镜像的 Dockerfile 与构建推送脚本。维护：测试开发与部署方
+├── CLAUDE.md、AGENTS.md              两种 agent 的项目入口，指向测试约定与 skill。维护：由 skill 安装命令追加提示行
+├── pyproject.toml、uv.lock           Python 侧单测的依赖
+├── package.json、package-lock.json   TypeScript 侧单测的依赖
+└── .claude/skills/、.agents/skills/  gherkai 的 agent skill。每人本机安装，不入库
+```
+
 ## 预备阅读
 
 - gherkai 的定位与工作原理：参见 [gherkai 的 README](https://github.com/zhiyanliu/gherkai) 与[用户指南](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/README.md)。本仓库不重复介绍这些概念。
@@ -33,6 +58,10 @@ npm install && npm run test:steps                                    # TypeScrip
 ```
 
 （演示步骤随后补充。）
+
+## 许可证
+
+本仓库以 [MIT 许可证](./LICENSE)发布。
 
 ## 第三方依赖
 

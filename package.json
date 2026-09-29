@@ -1,6 +1,7 @@
 {
   "name": "gherkai-webapp-demo",
   "private": true,
+  "license": "MIT",
   "description": "识字大挑战的 gherkai 用例。这里的 devDependencies 只给 steps/ 里 Midscene 侧判定逻辑的本地单测用（playwright 起本地浏览器、@gherkai/worker-midscene 取 DeterministicAssertion）；实际运行时 worker 用自己那份包，不读这里。",
   "type": "module",
   "scripts": {
