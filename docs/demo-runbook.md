@@ -132,7 +132,7 @@ sed -i.bak 's/^\(\s*\)STATE.score = 0;$/\1\/\/ STATE.score = 0;/' app/index.html
 gherkai run features/result.feature --scope result-replay-and-home --expose-local http://localhost:8080 --region us-east-1
 ```
 
-约 3 分钟。判否落在「再玩一次回到第 1 题且得分清零」的确定性 step `得分为 "0"`，失败消息带期望、实际与页面地址。读证据并处置：
+约 4 分钟（实测 223 秒：接续链三条中第一条通过、第二条判否、第三条继续通过）。判否落在「再玩一次回到第 1 题且得分清零」的确定性 step `得分为 "0"`，失败消息形如「得分应为 "0"，实际 "10"（页面 …，选择器 #score-display）」。读证据并处置：
 
 ```bash
 gherkai explain <run_id>
