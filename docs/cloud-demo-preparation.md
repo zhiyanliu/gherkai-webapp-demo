@@ -1,6 +1,6 @@
 # 云端后端演示的准备
 
-本页说明演示 gherkai 云端后端（`--backend cloud`）之前要做的准备，以及现场使用的命令。所有步骤可重复执行；重复执行得到相同的结果。云端后端的概念、部署与升级见 [部署与维护云端后端](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/cloud-backend.md)。
+演示 gherkai 云端后端（`--backend cloud`）之前需要完成以下准备；现场使用的命令列在后半部分。所有步骤可重复执行，重复执行得到相同的结果。云端后端的概念、部署与升级见 [部署与维护云端后端](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/cloud-backend.md)。
 
 ## 前置条件
 

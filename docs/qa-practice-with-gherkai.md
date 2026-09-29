@@ -1,6 +1,6 @@
 # 用 gherkai 做 UI 测试：QA 团队的工作方法
 
-本文档说明 QA 团队在使用 AI agent 的前提下如何使用 gherkai：角色分工、需求如何转化为可运行的用例、如何向 agent 分派任务并验收其产出，以及失败时如何修正。本文档不介绍基本概念，包括 gherkai 的定义、每一步的三种执行路径、AI 判定与确定性代码判定、本机与云端后端；这些内容参见 [gherkai 的 README](https://github.com/zhiyanliu/gherkai) 与[用户指南](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/README.md)，这些概念在本项目中的对应实例参见[概念对照](./concepts-in-this-project.md)。命令与选项以用户指南为准。
+QA 团队在使用 AI agent 的前提下这样使用 gherkai：角色分工、需求如何转化为可运行的用例、如何向 agent 分派任务并验收其产出，以及失败时如何修正。基本概念不在此介绍，包括 gherkai 的定义、每一步的三种执行路径、AI 判定与确定性代码判定、本机与云端后端；这些内容参见 [gherkai 的 README](https://github.com/zhiyanliu/gherkai) 与[用户指南](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/README.md)，这些概念在本项目中的对应实例参见[概念对照](./concepts-in-this-project.md)。命令与选项以用户指南为准。
 
 完整流程依次为：**需求、测试设计（QA 负责，产出简报）、实现（agent 负责，产出 feature 与 steps）、验收（QA 审阅用例与预检结果，测试开发 review 代码）、运行（QA 发起）、修正（agent 依据证据处置并汇报）、沉淀。** QA 不手写 feature，也不阅读代码；agent 不决定测试范围，也不自行运行。
 
