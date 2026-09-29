@@ -183,6 +183,22 @@ git checkout HEAD -- features steps && git clean -fd features steps   # 还原�
 
 本仓库四份 feature 的生成用时与两种 agent 的操作差异见 [QA 团队的工作方法](./qa-practice-with-gherkai.md) 第 5 节与第 9 节。
 
+## 附录：在远程机器上演示
+
+默认流程假设命令在本机执行。命令改在通过 ssh 登录的远程机器上执行时，命令本身不变，只有「看画面」的两处需要端口转发：
+
+- 被测应用：在本机另开一个连接 `ssh -L 8080:localhost:8080 <远程机器>`，本机浏览器打开 `http://localhost:8080`。
+- 本机后端的 HTML 报告：报告是远程机器上的文件 `reports/<run_id>/index.html`。在远程机器的 `reports/` 目录另起一个静态服务并转发第二个端口：
+
+  ```bash
+  (cd reports && python3 -m http.server 8081 > /tmp/demo-reports.log 2>&1 &)     # 远程机器
+  ssh -L 8081:localhost:8081 <远程机器>                                            # 本机
+  ```
+
+  然后本机浏览器打开 `http://localhost:8081/<run_id>/index.html`。云端后端的报告在 S3，不需要转发。
+
+「自行体验」一节在远程机器上执行时，agent 也要安装并登录在远程机器上。
+
 ## 演示后
 
 ```bash
