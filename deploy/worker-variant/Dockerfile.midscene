@@ -1,0 +1,6 @@
+# Midscene 引擎的 worker 定制镜像：官方基础镜像加本项目的确定性 step。
+# 构建时必须带 --platform linux/amd64；GHERKAI_VERSION 取提交方命令行的版本（gherkai --version）。
+ARG GHERKAI_VERSION
+FROM ghcr.io/zhiyanliu/gherkai-worker-midscene:${GHERKAI_VERSION}
+COPY steps/ /app/steps
+ENV GHERKAI_STEPS_DIR=/app/steps

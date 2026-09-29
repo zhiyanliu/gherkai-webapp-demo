@@ -1,0 +1,5 @@
+# worker 定制镜像的构建上下文只需要 steps/（见 deploy/worker-variant/）。
+*
+!steps/
+steps/__pycache__/
+steps/**/__pycache__/
