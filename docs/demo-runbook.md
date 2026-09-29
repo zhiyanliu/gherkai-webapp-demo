@@ -155,7 +155,7 @@ gherkai explain <run_id> --backend cloud --prefix vfy- --region us-east-1
 
 ## 自行体验：让 agent 按简报生成 feature 与 step
 
-演示中不执行本节。读者自行执行时，先移开仓库中已有的产出，否则 agent 会直接看到答案；结束后用 git 还原。以选关页为例，agent 需要 10 到 15 分钟。
+演示中不执行本节。读者自行执行时，先移开仓库中已有的产出，否则 agent 会直接读取已有的 feature 与 step；结束后用 git 还原。以选关页为例，agent 需要 10 到 15 分钟。
 
 ```bash
 cd ~/gherkai-webapp-demo
