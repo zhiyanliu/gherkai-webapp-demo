@@ -68,7 +68,7 @@ gantt
 ```mermaid
 flowchart LR
     CLI["「演示机」<br/>gherkai run"] --> WK["「演示机」<br/>worker 进程<br/>读取本机 steps/"] --> BR["「云端」<br/>浏览器与 AI 模型"] -- "经 ngrok 隧道" --> APP["「演示机」<br/>被测应用 :8080"]
-    WK --> REP["「演示机」<br/>报告与判定明细<br/>reports/ 目录"] --> RD["「演示机」<br/>gherkai explain"]
+    WK --> REP["「演示机」<br/>运行状态、报告与判定明细<br/>reports/ 目录"] --> RD["「演示机」<br/>gherkai explain"]
     classDef local fill:#e8f1fb,stroke:#3b6ea5,color:#0f2740
     classDef cloud fill:#fff1dc,stroke:#c77d00,color:#3d2600
     class CLI,WK,APP,REP,RD local
@@ -80,7 +80,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     CLI["「演示机」<br/>gherkai submit --backend cloud"] --> WK["「云端」<br/>worker 任务<br/>镜像 variant demo 内含 steps/"] --> BR["「云端」<br/>浏览器与 AI 模型"] -- "经 ngrok 隧道" --> APP["「演示机」<br/>被测应用 :8080"]
-    WK --> S3["「云端」<br/>报告与判定明细<br/>S3 桶"] --> RD["「演示机」<br/>gherkai status --wait、explain"]
+    WK --> S3["「云端」<br/>运行状态、报告与判定明细<br/>DynamoDB 表与 S3 桶"] --> RD["「演示机」<br/>gherkai status --wait、explain"]
     classDef local fill:#e8f1fb,stroke:#3b6ea5,color:#0f2740
     classDef cloud fill:#fff1dc,stroke:#c77d00,color:#3d2600
     class CLI,APP,RD local
