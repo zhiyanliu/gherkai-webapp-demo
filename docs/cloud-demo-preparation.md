@@ -27,7 +27,7 @@ deploy/push-worker-variant.sh --prefix <前缀> --region <region>   # 其它环�
 ## 第二步：核对
 
 ```bash
-gherkai deploy list-workers --prefix vfy- --region us-east-1     # 两个引擎下都应有 demo，镜像标签形如 1.4.6-demo
+gherkai deploy list-workers --prefix vfy- --region us-east-1     # 两个引擎下都应有 demo，镜像标签形如 <版本>-demo，版本与 gherkai --version 一致
 gherkai doctor --backend cloud --prefix vfy- --region us-east-1  # backend.* 各行为 ✓
 gherkai plan features/result.feature                             # 本机预检：确定性标注与 job 数；云端实际用镜像里的 step
 ```
