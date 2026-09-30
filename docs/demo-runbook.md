@@ -61,35 +61,22 @@ gantt
 
 5. 终端布局：一个终端用于讲解与运行，应用的静态服务在后台运行；另开一个浏览器窗口查看应用与报告。
 
-演示环境的各部分及其连接如下。演示机上运行被测应用、gherkai 命令行与隧道；浏览器与模型始终在云端；本机后端的 worker 是演示机上的进程，云端后端的 worker 是部署方账户里的容器任务。
+演示中两条后端各是一条链，区别只在 worker 在哪台机器上运行、报告落在哪里；被测应用、隧道与命令行始终在演示机上，浏览器与模型始终在云端。
+
+本机后端（10:00 与 14:00 两段）：
 
 ```mermaid
 flowchart LR
-    subgraph M["演示机"]
-        APP["被测应用<br/>python3 -m http.server 8080"]
-        NG["ngrok 隧道<br/>凭据每次运行更换"]
-        CLI["gherkai 命令行<br/>features/ 与 steps/"]
-        W1["本机后端 worker 进程<br/>读取本机 steps/"]
-        REP["reports/<br/>报告与判定明细"]
-    end
-    subgraph C["云端"]
-        BR["AgentCore 浏览器会话"]
-        AI["AI 引擎的模型<br/>Midscene、Nova Act"]
-        subgraph CB["云端后端（部署方维护）"]
-            W2["Fargate worker 任务<br/>镜像 variant demo，内含本项目 steps/"]
-            S3["S3<br/>报告与判定明细"]
-        end
-    end
-    CLI -- "run（10:00、14:00 段）" --> W1
-    CLI -- "submit --backend cloud（19:00 段）" --> W2
-    W1 -- "操作与判定" --> BR
-    W2 -- "操作与判定" --> BR
-    W1 -. "调用" .-> AI
-    W2 -. "调用" .-> AI
-    BR -- "访问被测应用" --> NG --> APP
-    W1 --> REP
-    W2 --> S3
-    CLI -- "status、explain" --> S3
+    CLI["gherkai run<br/>演示机"] --> WK["worker 进程<br/>演示机，读取本机 steps/"] --> BR["浏览器与 AI 模型<br/>云端"] -- "经 ngrok 隧道" --> APP["被测应用 :8080<br/>演示机"]
+    WK --> REP["reports/<br/>演示机"]
+```
+
+云端后端（19:00 段）：
+
+```mermaid
+flowchart LR
+    CLI["gherkai submit --backend cloud<br/>演示机"] --> WK["worker 任务<br/>云端，镜像 variant demo 内含 steps/"] --> BR["浏览器与 AI 模型<br/>云端"] -- "经 ngrok 隧道" --> APP["被测应用 :8080<br/>演示机"]
+    WK --> S3["报告与判定明细<br/>S3"] -- "status、explain" --> CLI
 ```
 
 ## 时间线
