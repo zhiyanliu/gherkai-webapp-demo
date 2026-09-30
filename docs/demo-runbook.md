@@ -61,47 +61,55 @@ gantt
 
 5. 终端布局：一个终端用于讲解与运行，应用的静态服务在后台运行；另开一个浏览器窗口查看应用与报告。
 
-演示中两条后端各是一条链，区别只在 worker 在哪台机器上运行、报告与判定明细落在哪里。节点第一行标注位置：「演示机」为蓝色，「云端」为橙色。
-
-本机后端（10:00 与 14:00 两段）：
+演示中两条后端的步骤相同：命令行派发 job，worker 操作云端浏览器并判定，浏览器经隧道访问被测应用，worker 写入运行状态、报告与判定明细，命令行读取结果。区别只在 worker 与结果存储落在哪个位置。下图两个泳道按位置分「演示机」与「云端」，上下两段分别是本机后端与云端后端。
 
 ```mermaid
-flowchart LR
-    CLI["「演示机」<br/>gherkai run"] --> WK["「演示机」<br/>worker 进程<br/>读取本机 steps/"] --> BR["「云端」<br/>浏览器与 AI 模型"] -- "经 ngrok 隧道" --> APP["「演示机」<br/>被测应用 :8080"]
-    WK --> REP["「演示机」<br/>运行状态、报告与判定明细<br/>reports/ 目录"] --> RD["「演示机」<br/>gherkai explain"]
-    classDef local fill:#e8f1fb,stroke:#3b6ea5,color:#0f2740
-    classDef cloud fill:#fff1dc,stroke:#c77d00,color:#3d2600
-    class CLI,WK,APP,REP,RD local
-    class BR cloud
-```
-
-云端后端（19:00 段）：
-
-```mermaid
-flowchart LR
-    CLI["「演示机」<br/>gherkai submit --backend cloud"] --> WK["「云端」<br/>worker 任务<br/>镜像 variant demo 内含 steps/"] --> BR["「云端」<br/>浏览器与 AI 模型"] -- "经 ngrok 隧道" --> APP["「演示机」<br/>被测应用 :8080"]
-    WK --> S3["「云端」<br/>运行状态、报告与判定明细<br/>DynamoDB 表与 S3 桶"] --> RD["「演示机」<br/>gherkai status --wait、explain"]
-    classDef local fill:#e8f1fb,stroke:#3b6ea5,color:#0f2740
-    classDef cloud fill:#fff1dc,stroke:#c77d00,color:#3d2600
-    class CLI,APP,RD local
-    class WK,BR,S3 cloud
+%%{init: {"sequence": {"mirrorActors": false}}}%%
+sequenceDiagram
+    box rgb(232,241,251) 「演示机」
+        participant CLI as gherkai 命令行
+        participant W1 as worker 进程<br/>读取本机 steps/
+        participant S1 as reports/ 目录<br/>运行状态、报告与判定明细
+        participant APP as 被测应用 :8080
+    end
+    box rgb(255,241,220) 「云端」
+        participant W2 as worker 任务<br/>镜像 variant demo 内含 steps/
+        participant BR as 浏览器与 AI 模型
+        participant S2 as DynamoDB 表与 S3 桶<br/>运行状态、报告与判定明细
+    end
+    rect rgb(245,248,252)
+        Note over CLI,S2: 本机后端（10:00 与 14:00 两段）
+        CLI->>W1: run：派发 job
+        W1->>BR: 操作与判定
+        BR->>APP: 经 ngrok 隧道访问
+        W1->>S1: 写入
+        CLI->>S1: explain 读取
+    end
+    rect rgb(253,248,240)
+        Note over CLI,S2: 云端后端（19:00 段）
+        CLI->>W2: submit --backend cloud：派发 job
+        W2->>BR: 操作与判定
+        BR->>APP: 经 ngrok 隧道访问
+        W2->>S2: 写入
+        CLI->>S2: status --wait、explain 读取
+    end
 ```
 
 ## 时间线
 
 命令本身的执行时间合计约 10 分钟，其中两次本机运行各约 4 分钟；其余时间用于讲解。
 
-| 时间 | 段 |
-|---|---|
-| 0:00 | 开场：问题与主张 |
-| 2:00 | 从 clone 起：环境、项目形状、安装 skill |
-| 5:00 | 三层输入与 agent 的产出 |
-| 10:00 | 预检与本机后端运行 |
-| 14:00 | 失败诊断与处置 |
-| 19:00 | 云端后端提交 |
-| 21:00 | 确定性 step 的代码与验收 |
-| 25:00 | 云端结果 |
-| 28:00 | 收尾 |
+| 时间  | 段                                   |
+|-------|--------------------------------------|
+| 0:00  | 开场：问题与主张                      |
+| 2:00  | 从 clone 起：环境、项目形状、安装 skill |
+| 5:00  | 三层输入与 agent 的产出              |
+| 10:00 | 预检与本机后端运行                   |
+| 14:00 | 失败诊断与处置                       |
+| 19:00 | 云端后端提交                         |
+| 21:00 | 确定性 step 的代码与验收             |
+| 25:00 | 云端结果                             |
+| 28:00 | 收尾                                 |
 
 ### 0:00 开场
 
