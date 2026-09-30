@@ -36,7 +36,7 @@ gantt
 
    ```bash
    uv tool install --force --refresh 'gherkai[local,deploy-aws]'
-   npm i -g @gherkai/worker-midscene@"$(gherkai --version | awk '{print $2}')"
+   npm i -g @gherkai/worker-midscene@"$(gherkai --version | awk '{print $2}')"   # npm 全局目录属于系统（如 /usr/lib/node_modules）时在前面加 sudo
    gherkai doctor                       # 本机后端：引擎、模型、AWS 身份都应为 ✓
    ngrok config check                   # 隧道：已配置 authtoken
    ```
