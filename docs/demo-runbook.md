@@ -30,33 +30,34 @@ gantt
 
 ## 演示前一天
 
-以下准备不计入 30 分钟。
+以下准备不计入 30 分钟。命令按顺序执行：先 clone，检查都在项目目录内进行，最后删除目录，演示时重新 clone。
 
-1. 安装与凭证（按 [gherkai 用户指南](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/getting-started.md)）：
+1. clone 项目并安装（按 [gherkai 用户指南](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/user-guide/getting-started.md)）：
 
    ```bash
+   cd ~ && git clone https://github.com/zhiyanliu/gherkai-webapp-demo.git && cd gherkai-webapp-demo
    uv tool install --force --refresh 'gherkai[local,deploy-aws]'
    npm i -g @gherkai/worker-midscene@"$(gherkai --version | awk '{print $2}')"   # npm 全局目录属于系统（如 /usr/lib/node_modules）时在前面加 sudo
-   gherkai doctor                       # 本机后端：引擎、模型、AWS 身份都应为 ✓
+   gherkai doctor                       # 本机后端：引擎、模型、AWS 身份都应为 ✓；在项目目录内执行，steps 加载两行才会显示本项目的 step 数
    ngrok config check                   # 隧道：已配置 authtoken
    ```
 
 2. AI agent（Claude Code 或 Codex）：主时间线不需要它在场，`gherkai skill install` 只是把 skill 文件装进项目目录；只有文末「自行体验」一节需要已安装并登录的 agent。
 
-3. 云端后端（可选段使用）：部署方已将云端后端部署为与命令行相同的版本，并按 [云端后端演示的准备](./cloud-demo-preparation.md) 注册 variant `demo`。核对命令：
+3. 云端后端（可选段使用）：部署方已将云端后端部署为与命令行相同的版本，并按 [云端后端演示的准备](./cloud-demo-preparation.md) 注册 variant `demo`。仍在项目目录内核对：
 
    ```bash
    gherkai doctor --backend cloud --prefix vfy- --region us-east-1
    gherkai deploy list-workers --prefix vfy- --region us-east-1
    ```
 
-4. 预热一次，排除首次运行的冷启动，并记录墙钟时长供现场对照：
+4. 预热一次，排除首次运行的冷启动，并记录墙钟时长供现场对照；预热后删除目录：
 
    ```bash
-   cd ~ && git clone https://github.com/zhiyanliu/gherkai-webapp-demo.git && cd gherkai-webapp-demo
    (cd app && python3 -m http.server 8080 > /tmp/demo-app.log 2>&1 &)
    gherkai run features/level-select.feature --expose-local http://localhost:8080 --region us-east-1
-   rm -rf ~/gherkai-webapp-demo                     # 预热后删除目录，演示时重新 clone
+   pkill -f "http.server 8080"
+   cd ~ && rm -rf gherkai-webapp-demo             # 演示时重新 clone
    ```
 
 5. 终端布局：一个终端用于讲解与运行，应用的静态服务在后台运行；另开一个浏览器窗口查看应用与报告。
