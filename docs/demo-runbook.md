@@ -61,14 +61,14 @@ gantt
 
 5. 终端布局：一个终端用于讲解与运行，应用的静态服务在后台运行；另开一个浏览器窗口查看应用与报告。
 
-演示中两条后端各是一条链，区别只在 worker 在哪台机器上运行、报告与判定明细落在哪里；被测应用、隧道与命令行始终在演示机上，浏览器与模型始终在云端。两条链的结果都在演示机上读取：本机后端看运行输出与 `explain`，云端后端用 `status --wait` 等到终态后再 `explain`。
+演示中两条后端各是一条链，区别只在 worker 在哪台机器上运行、报告与判定明细落在哪里；被测应用、隧道与命令行始终在演示机上，浏览器与模型始终在云端。
 
 本机后端（10:00 与 14:00 两段）：
 
 ```mermaid
 flowchart LR
     CLI["gherkai run<br/>演示机"] --> WK["worker 进程<br/>演示机，读取本机 steps/"] --> BR["浏览器与 AI 模型<br/>云端"] -- "经 ngrok 隧道" --> APP["被测应用 :8080<br/>演示机"]
-    WK --> REP["报告与判定明细<br/>演示机 reports/ 目录"]
+    WK --> REP["报告与判定明细<br/>演示机 reports/ 目录"] --> RD["gherkai explain<br/>演示机"]
 ```
 
 云端后端（19:00 段）：
@@ -76,7 +76,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     CLI["gherkai submit --backend cloud<br/>演示机"] --> WK["worker 任务<br/>云端，镜像 variant demo 内含 steps/"] --> BR["浏览器与 AI 模型<br/>云端"] -- "经 ngrok 隧道" --> APP["被测应用 :8080<br/>演示机"]
-    WK --> S3["报告与判定明细<br/>云端 S3 桶"]
+    WK --> S3["报告与判定明细<br/>云端 S3 桶"] --> RD["gherkai status --wait、explain<br/>演示机"]
 ```
 
 ## 时间线
