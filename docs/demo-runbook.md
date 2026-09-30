@@ -61,38 +61,61 @@ gantt
 
 5. 终端布局：一个终端用于讲解与运行，应用的静态服务在后台运行；另开一个浏览器窗口查看应用与报告。
 
-演示中两条后端的步骤相同：命令行派发 job，worker 操作云端浏览器并判定，浏览器经隧道访问被测应用，worker 写入运行状态、报告与判定明细，命令行读取结果。区别只在 worker 与结果存储落在哪个位置。下图两个泳道按位置分「演示机」与「云端」，上下两段分别是本机后端与云端后端。
+演示中两条后端的步骤相同，区别只在 worker 与结果存储落在哪个位置。下图每一行是一条后端，每一列是一个环节；框内第一行标注位置，「演示机」为蓝色，「云端」为橙色。
 
 ```mermaid
-%%{init: {"sequence": {"mirrorActors": false}}}%%
-sequenceDiagram
-    box rgb(232,241,251) 「演示机」
-        participant CLI as gherkai 命令行
-        participant W1 as worker 进程<br/>读取本机 steps/
-        participant S1 as reports/ 目录<br/>运行状态、报告与判定明细
-        participant APP as 被测应用 :8080
+---
+config:
+  layout: elk
+---
+flowchart LR
+    subgraph C0["后端"]
+        direction TB
+        R1["本机后端<br/>10:00 与 14:00 段"]
+        R2["云端后端<br/>19:00 段"]
     end
-    box rgb(255,241,220) 「云端」
-        participant W2 as worker 任务<br/>镜像 variant demo 内含 steps/
-        participant BR as 浏览器与 AI 模型
-        participant S2 as DynamoDB 表与 S3 桶<br/>运行状态、报告与判定明细
+    subgraph C1["命令行"]
+        direction TB
+        A1["「演示机」<br/>gherkai run"]
+        A2["「演示机」<br/>gherkai submit --backend cloud"]
     end
-    rect rgb(245,248,252)
-        Note over CLI,S2: 本机后端（10:00 与 14:00 两段）
-        CLI->>W1: run：派发 job
-        W1->>BR: 操作与判定
-        BR->>APP: 经 ngrok 隧道访问
-        W1->>S1: 写入
-        CLI->>S1: explain 读取
+    subgraph C2["worker"]
+        direction TB
+        B1["「演示机」<br/>worker 进程<br/>读取本机 steps/"]
+        B2["「云端」<br/>worker 任务<br/>镜像 variant demo 内含 steps/"]
     end
-    rect rgb(253,248,240)
-        Note over CLI,S2: 云端后端（19:00 段）
-        CLI->>W2: submit --backend cloud：派发 job
-        W2->>BR: 操作与判定
-        BR->>APP: 经 ngrok 隧道访问
-        W2->>S2: 写入
-        CLI->>S2: status --wait、explain 读取
+    subgraph C3["浏览器与 AI 模型"]
+        direction TB
+        D1["「云端」<br/>浏览器与 AI 模型"]
+        D2["「云端」<br/>浏览器与 AI 模型"]
     end
+    subgraph C4["被测应用"]
+        direction TB
+        E1["「演示机」<br/>被测应用 :8080<br/>经 ngrok 隧道访问"]
+        E2["「演示机」<br/>被测应用 :8080<br/>经 ngrok 隧道访问"]
+    end
+    subgraph C5["运行状态、报告与判定明细"]
+        direction TB
+        F1["「演示机」<br/>reports/ 目录"]
+        F2["「云端」<br/>DynamoDB 表与 S3 桶"]
+    end
+    subgraph C6["读取结果"]
+        direction TB
+        G1["「演示机」<br/>gherkai explain"]
+        G2["「演示机」<br/>gherkai status --wait、explain"]
+    end
+    R1 --> A1 --> B1 --> D1 --> E1
+    E1 ~~~ F1
+    B1 --> F1 --> G1
+    R2 --> A2 --> B2 --> D2 --> E2
+    E2 ~~~ F2
+    B2 --> F2 --> G2
+    classDef local fill:#e8f1fb,stroke:#3b6ea5,color:#0f2740
+    classDef cloud fill:#fff1dc,stroke:#c77d00,color:#3d2600
+    classDef row fill:#f2f2f2,stroke:#888,color:#222
+    class A1,A2,B1,E1,E2,F1,G1,G2 local
+    class B2,D1,D2,F2 cloud
+    class R1,R2 row
 ```
 
 ## 时间线
