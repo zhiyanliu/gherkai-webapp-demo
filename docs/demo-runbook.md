@@ -61,14 +61,14 @@ gantt
 
 5. 终端布局：一个终端用于讲解与运行，应用的静态服务在后台运行；另开一个浏览器窗口查看应用与报告。
 
-演示中两条后端各是一条链，区别只在 worker 在哪台机器上运行、报告与判定明细落在哪里。节点第二行标注位置：「演示机」为蓝色，「云端」为橙色。
+演示中两条后端各是一条链，区别只在 worker 在哪台机器上运行、报告与判定明细落在哪里。节点第一行标注位置：「演示机」为蓝色，「云端」为橙色。
 
 本机后端（10:00 与 14:00 两段）：
 
 ```mermaid
 flowchart LR
-    CLI["gherkai run<br/>「演示机」"] --> WK["worker 进程<br/>「演示机」<br/>读取本机 steps/"] --> BR["浏览器与 AI 模型<br/>「云端」"] -- "经 ngrok 隧道" --> APP["被测应用 :8080<br/>「演示机」"]
-    WK --> REP["报告与判定明细<br/>「演示机」<br/>reports/ 目录"] --> RD["gherkai explain<br/>「演示机」"]
+    CLI["「演示机」<br/>gherkai run"] --> WK["「演示机」<br/>worker 进程<br/>读取本机 steps/"] --> BR["「云端」<br/>浏览器与 AI 模型"] -- "经 ngrok 隧道" --> APP["「演示机」<br/>被测应用 :8080"]
+    WK --> REP["「演示机」<br/>报告与判定明细<br/>reports/ 目录"] --> RD["「演示机」<br/>gherkai explain"]
     classDef local fill:#e8f1fb,stroke:#3b6ea5,color:#0f2740
     classDef cloud fill:#fff1dc,stroke:#c77d00,color:#3d2600
     class CLI,WK,APP,REP,RD local
@@ -79,8 +79,8 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    CLI["gherkai submit --backend cloud<br/>「演示机」"] --> WK["worker 任务<br/>「云端」<br/>镜像 variant demo 内含 steps/"] --> BR["浏览器与 AI 模型<br/>「云端」"] -- "经 ngrok 隧道" --> APP["被测应用 :8080<br/>「演示机」"]
-    WK --> S3["报告与判定明细<br/>「云端」<br/>S3 桶"] --> RD["gherkai status --wait、explain<br/>「演示机」"]
+    CLI["「演示机」<br/>gherkai submit --backend cloud"] --> WK["「云端」<br/>worker 任务<br/>镜像 variant demo 内含 steps/"] --> BR["「云端」<br/>浏览器与 AI 模型"] -- "经 ngrok 隧道" --> APP["「演示机」<br/>被测应用 :8080"]
+    WK --> S3["「云端」<br/>报告与判定明细<br/>S3 桶"] --> RD["「演示机」<br/>gherkai status --wait、explain"]
     classDef local fill:#e8f1fb,stroke:#3b6ea5,color:#0f2740
     classDef cloud fill:#fff1dc,stroke:#c77d00,color:#3d2600
     class CLI,APP,RD local
