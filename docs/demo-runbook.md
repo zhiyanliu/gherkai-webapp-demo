@@ -61,62 +61,12 @@ gantt
 
 5. 终端布局：一个终端用于讲解与运行，应用的静态服务在后台运行；另开一个浏览器窗口查看应用与报告。
 
-演示中两条后端的步骤相同，区别只在 worker 与结果存储落在哪个位置。下图每一行是一条后端，每一列是一个环节；框内第一行标注位置，「演示机」为蓝色，「云端」为橙色。
+演示中两条后端的步骤相同，区别只在 worker 与结果存储落在哪个位置。下表每一行是一条后端，从左到右是一次运行经过的环节：命令行把 job 派发给 worker，worker 操作云端的浏览器与模型并写入结果，浏览器经隧道访问被测应用，最后由命令行读取结果。每格第一行标注位置。
 
-```mermaid
----
-config:
-  layout: elk
----
-flowchart LR
-    subgraph C0["后端"]
-        direction TB
-        R1["本机后端<br/>10:00 与 14:00 段"]
-        R2["云端后端<br/>19:00 段"]
-    end
-    subgraph C1["命令行"]
-        direction TB
-        A1["「演示机」<br/>gherkai run"]
-        A2["「演示机」<br/>gherkai submit --backend cloud"]
-    end
-    subgraph C2["worker"]
-        direction TB
-        B1["「演示机」<br/>worker 进程<br/>读取本机 steps/"]
-        B2["「云端」<br/>worker 任务<br/>镜像 variant demo 内含 steps/"]
-    end
-    subgraph C3["浏览器与 AI 模型"]
-        direction TB
-        D1["「云端」<br/>浏览器与 AI 模型"]
-        D2["「云端」<br/>浏览器与 AI 模型"]
-    end
-    subgraph C4["被测应用"]
-        direction TB
-        E1["「演示机」<br/>被测应用 :8080<br/>经 ngrok 隧道访问"]
-        E2["「演示机」<br/>被测应用 :8080<br/>经 ngrok 隧道访问"]
-    end
-    subgraph C5["运行状态、报告与判定明细"]
-        direction TB
-        F1["「演示机」<br/>reports/ 目录"]
-        F2["「云端」<br/>DynamoDB 表与 S3 桶"]
-    end
-    subgraph C6["读取结果"]
-        direction TB
-        G1["「演示机」<br/>gherkai explain"]
-        G2["「演示机」<br/>gherkai status --wait、explain"]
-    end
-    R1 --> A1 --> B1 --> D1 --> E1
-    E1 ~~~ F1
-    B1 --> F1 --> G1
-    R2 --> A2 --> B2 --> D2 --> E2
-    E2 ~~~ F2
-    B2 --> F2 --> G2
-    classDef local fill:#e8f1fb,stroke:#3b6ea5,color:#0f2740
-    classDef cloud fill:#fff1dc,stroke:#c77d00,color:#3d2600
-    classDef row fill:#f2f2f2,stroke:#888,color:#222
-    class A1,A2,B1,E1,E2,F1,G1,G2 local
-    class B2,D1,D2,F2 cloud
-    class R1,R2 row
-```
+| 后端 | 命令行 | worker | 浏览器与 AI 模型 | 被测应用 | 运行状态、报告与判定明细 | 读取结果 |
+|---|---|---|---|---|---|---|
+| 本机后端<br>10:00 与 14:00 段 | 「演示机」<br>`gherkai run` | 「演示机」<br>worker 进程，读取本机 `steps/` | 「云端」<br>浏览器与 AI 模型 | 「演示机」<br>被测应用 :8080，经 ngrok 隧道访问 | 「演示机」<br>`reports/` 目录 | 「演示机」<br>`gherkai explain` |
+| 云端后端<br>19:00 段 | 「演示机」<br>`gherkai submit --backend cloud` | 「云端」<br>worker 任务，镜像 variant `demo` 内含 `steps/` | 「云端」<br>浏览器与 AI 模型 | 「演示机」<br>被测应用 :8080，经 ngrok 隧道访问 | 「云端」<br>DynamoDB 表与 S3 桶 | 「演示机」<br>`gherkai status --wait`、`gherkai explain` |
 
 ## 时间线
 
