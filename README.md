@@ -6,6 +6,10 @@
 
 二年级语文识字课件：主页、选关（8 组）、生字选拼音答题（每组 10 题）、得分与结算。单页静态实现，无外网依赖，断网可运行。界面支持中英双语：通过右上角的按钮切换，或使用地址参数 `?lang=en` 以英文界面启动。产品需求见 [docs/product-requirements.md](./docs/product-requirements.md)。
 
+| 主页 | 答题页 |
+|---|---|
+| ![主页：标题与「开始挑战」按钮，右上角为语言切换按钮](./docs/images/home.jpg) | ![答题页：生字卡、四个拼音选项、进度与得分](./docs/images/quiz.jpg) |
+
 ```bash
 cd app && python3 -m http.server 8080
 # 浏览器打开 http://localhost:8080 ；英文界面 http://localhost:8080/?lang=en
