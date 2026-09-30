@@ -167,11 +167,12 @@ mv app/index.html.bak app/index.html               # 还原应用
 ### 19:00 云端后端提交
 
 ```bash
+gherkai doctor --backend cloud --prefix vfy- --region us-east-1      # 云端后端就位：版本一致、资源齐全、两引擎镜像已解析
 gherkai submit features/level-select.feature --backend cloud --prefix vfy- --region us-east-1 \
   --worker-variant demo --expose-local http://localhost:8080
 ```
 
-命令立即返回 run_id，后续步骤需要使用它。讲解：worker 与浏览器都在云端，本机只持有隧道；云端运行的确定性 step 来自 variant `demo` 的镜像，而不是本机的 `steps/`，镜像的构建与注册见 [云端后端演示的准备](./cloud-demo-preparation.md)。
+`doctor` 与开头那次对称：那次查本机后端，这次查云端后端。`submit` 立即返回 run_id，后续步骤需要使用它。讲解：worker 与浏览器都在云端，本机只持有隧道；云端运行的确定性 step 来自 variant `demo` 的镜像，而不是本机的 `steps/`，镜像的构建与注册见 [云端后端演示的准备](./cloud-demo-preparation.md)。
 
 ### 21:00 确定性 step 的代码与验收
 
