@@ -5,6 +5,7 @@ Feature: 选关页
   @smoke @engine:midscene
   Scenario: 从主页进入选关页
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     Then 选关页的标题是 "选择关卡"
     And 关卡按钮有 "8" 个
@@ -15,6 +16,7 @@ Feature: 选关页
   @regression @engine:midscene
   Scenario: 从选关页返回主页
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击返回主页按钮"
     Then 页面上有 "开始挑战" 按钮
@@ -23,6 +25,7 @@ Feature: 选关页
   @regression @engine:midscene
   Scenario: 选择第 3 组进入答题页
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "选择第 3 组"
     Then "当前是答题页：生字卡上显示一个汉字，下方是拼音选项"
@@ -32,6 +35,7 @@ Feature: 选关页
   @regression @engine:novaact
   Scenario: 英文界面下的选关页
     Given 打开 "http://localhost:8080/?lang=en"
+    And 页面上有 "Start Challenge" 按钮
     When "click the Start Challenge button"
     Then 选关页的标题是 "Choose a Level"
     And 关卡按钮有 "8" 个

@@ -21,6 +21,7 @@ Feature: 主页与界面语言
   @smoke @engine:midscene
   Scenario: 在主页切换语言再切回
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击右上角显示 EN 的语言切换按钮"
     Then 页面标题是 "Character Challenge - Grade 2, Volume 1"
     And 语言切换按钮显示 "中文"
@@ -35,6 +36,7 @@ Feature: 主页与界面语言
   @regression @engine:midscene
   Scenario: 答题中途切换语言不丢状态
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击第 1 组"
     And 选择当前生字的正确拼音
@@ -51,6 +53,7 @@ Feature: 主页与界面语言
   @regression @engine:midscene
   Scenario: 切到英文后刷新页面仍是英文界面
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击右上角显示 EN 的语言切换按钮"
     Then 地址栏的 "lang" 参数是 "en"
     When 刷新页面

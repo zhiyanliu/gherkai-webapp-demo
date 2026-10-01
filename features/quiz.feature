@@ -5,6 +5,7 @@ Feature: 答题页
   @smoke @engine:midscene
   Scenario: 进入第 1 组显示第 1 题
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击第 1 组"
     Then "生字卡上显示的是一个汉字"
@@ -15,6 +16,7 @@ Feature: 答题页
   @smoke @engine:midscene
   Scenario: 答对加一分并自动进入下一题
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击第 1 组"
     And 选择当前生字的正确拼音
@@ -25,6 +27,7 @@ Feature: 答题页
   @regression @engine:midscene
   Scenario: 答错不加分并高亮正确答案
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击第 1 组"
     And 选择一个错误的拼音
@@ -35,6 +38,7 @@ Feature: 答题页
   @regression @engine:midscene
   Scenario: 一题只答一次
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击第 1 组"
     Then 作答后立刻再点其它选项，得分与高亮都不变
@@ -43,6 +47,7 @@ Feature: 答题页
   @regression @engine:novaact
   Scenario: 英文界面下答对加一分
     Given 打开 "http://localhost:8080/?lang=en"
+    And 页面上有 "Start Challenge" 按钮
     When "click the Start Challenge button"
     Then "the level selection page shows its heading, level buttons and back button in English"
     When "choose Group 1"

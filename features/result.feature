@@ -5,6 +5,7 @@ Feature: 结算页
   @smoke @scope:result-replay-and-home @engine:midscene @timeout:600
   Scenario: 全部答对
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击第 1 组"
     And 依次答对全部 "10" 题
@@ -35,6 +36,7 @@ Feature: 结算页
   @regression @engine:midscene
   Scenario: 全部答错
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击第 1 组"
     And 依次答错全部 "10" 题
@@ -45,6 +47,7 @@ Feature: 结算页
   @regression @engine:midscene
   Scenario: 答对 8 题答错 2 题得中间档评语
     Given 打开 "http://localhost:8080"
+    And 页面上有 "开始挑战" 按钮
     When "点击开始挑战按钮"
     And "点击第 1 组"
     And 依次答对 "8" 题，再答错 "2" 题
@@ -55,6 +58,7 @@ Feature: 结算页
   @regression @engine:novaact
   Scenario: 英文界面下全部答对
     Given 打开 "http://localhost:8080/?lang=en"
+    And 页面上有 "Start Challenge" 按钮
     When "click the Start Challenge button"
     And "choose Group 1"
     And 依次答对全部 "10" 题
