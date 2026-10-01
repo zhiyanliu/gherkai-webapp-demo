@@ -182,6 +182,7 @@ gherkai explain <run_id> --backend cloud --prefix vfy- --region us-east-1
 
 - 本机运行判否但原因不是预埋的缺陷：以它作为 14:00 段的素材，`explain` 之后按四种处置讲解。
 - 隧道建立失败：执行 `ngrok config check`；仍失败则跳过本机运行，只讲预检与云端段。
+- 每一步都判否或出错，确定性 step 的原因写「当前显示的是 没有任何页面」，AI 步的证据说页面是目录列表或错误页：8080 端口上运行的不是被测应用（常见于把报告目录的静态服务也起在了 8080，或应用服务已被 `pkill` 停掉）。执行 `curl -s http://localhost:8080/ | grep -c 'id="home-screen"'`，结果为 0 即是此情形；按 2:00 段重新启动应用服务后重新运行。
 - 云端结果到 25:00 仍未到终态：先收尾，`status --wait` 放在最后执行。
 - 模型服务偶发 5xx 或 AI 判定抖动属于正常现象，重新运行对应的 job：`gherkai run <feature> --scope <scope_id> --expose-local http://localhost:8080 --region us-east-1`。
 
@@ -220,7 +221,7 @@ git checkout HEAD -- features steps && git clean -fd features steps   # 还原�
 默认流程假设命令在本机执行。命令改在通过 ssh 登录的远程机器上执行时，命令本身不变，只有「看画面」的两处需要端口转发：
 
 - 被测应用：在本机另开一个连接 `ssh -L 8080:localhost:8080 <远程机器>`，本机浏览器打开 `http://localhost:8080`。
-- 本机后端的 HTML 报告：报告是远程机器上的文件 `reports/<run_id>/index.html`。在远程机器的 `reports/` 目录另起一个静态服务并转发第二个端口：
+- 本机后端的 HTML 报告：报告是远程机器上的文件 `reports/<run_id>/index.html`。在远程机器的 `reports/` 目录另起一个静态服务并转发第二个端口。报告服务必须用 8080 以外的端口，8080 上的应用服务要保持运行，云端浏览器经隧道访问的就是它：
 
   ```bash
   (cd reports && python3 -m http.server 8081 > /tmp/demo-reports.log 2>&1 &)     # 远程机器
