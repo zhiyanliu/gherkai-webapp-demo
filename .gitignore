@@ -2,6 +2,11 @@
 reports/
 *.log
 
+# 演示制作缓存；定版成果与可恢复素材包放在 docs/presentations/demo/
+/output/
+/.chart-data-*/
+/docs/presentations/demo/internal/work/
+
 # 语言工具链
 node_modules/
 .venv/

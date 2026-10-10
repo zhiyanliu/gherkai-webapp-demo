@@ -1,0 +1,17 @@
+{
+  "readme_video_url": "https://github.com/user-attachments/assets/ded7eebe-d88d-4266-a16b-4fff34c2f9fc",
+  "source": "../gherkai-demo.mp4",
+  "bytes": 53420829,
+  "sha256": "9b3b6afd5ccd6009ab3ca0ddc9884ef44837f6da7dcaf27818e04cd9c3b0f62f",
+  "duration_seconds": 799.72,
+  "width": 1920,
+  "height": 1200,
+  "captions": "burned_in",
+  "upload": "GitHub CLI user-attachments API; original approved file, no re-encoding",
+  "github_markdown_verification": {
+    "video_elements": 1,
+    "controls": true,
+    "muted": true,
+    "autoplay": false
+  }
+}

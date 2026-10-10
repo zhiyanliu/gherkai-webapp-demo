@@ -2,12 +2,20 @@
 
 本仓库是演示 [gherkai](https://github.com/zhiyanliu/gherkai) 的示例项目，包含两部分：一个纯静态的被测应用，以及针对该应用编写的 gherkai 用例。仓库结构与使用 gherkai 的普通项目相同：`app/` 存放被测应用，`features/` 存放 `.feature` 用例，`steps/` 存放确定性 step 代码。
 
+## 完整演示
+
+https://github.com/user-attachments/assets/ded7eebe-d88d-4266-a16b-4fff34c2f9fc
+
+[观看 Demo 视频](./docs/presentations/demo/gherkai-demo.mp4) · [Deck](./docs/presentations/demo/gherkai-demo.pptx) · [按 runbook 自己操作](./docs/demo-runbook.md)
+
+从需求生成用例与确定性步骤，实际运行并读取失败依据，再完成双引擎云端复验。[完整资料](./docs/presentations/demo/README.md)包含字幕、章节、讲者手册和可恢复素材包。
+
 ## 被测应用
 
 二年级语文识字课件：主页、选关（8 组）、生字选拼音答题（每组 10 题）、得分与结算。单页静态实现，无外网依赖，断网可运行。界面支持中英双语：通过右上角的按钮切换，或使用地址参数 `?lang=en` 以英文界面启动。产品需求见 [docs/product-requirements.md](./docs/product-requirements.md)。
 
-| 主页 | 答题页 |
-|---|---|
+| 主页                                                                      | 答题页                                                           |
+|---------------------------------------------------------------------------|------------------------------------------------------------------|
 | ![主页：标题与「开始挑战」按钮，右上角为语言切换按钮](./docs/images/home.jpg) | ![答题页：生字卡、四个拼音选项、进度与得分](./docs/images/quiz.jpg) |
 
 ```bash
@@ -30,10 +38,13 @@ gherkai-webapp-demo/
 │   ├── qa-practice-with-gherkai.md   QA 团队的工作方法。维护：QA
 │   ├── concepts-in-this-project.md   gherkai 概念与本项目实例的对照。维护：测试开发
 │   ├── cloud-demo-preparation.md     云端后端演示的准备。维护：部署方与测试开发
-│   └── demo-runbook.md               演示 runbook。维护：演示者
+│   ├── demo-runbook.md               演示 runbook。维护：演示者
+│   ├── demo-generation-prompt.md     可复制的 Agent 生成任务
+│   └── presentations/demo/           定版 Deck、视频、字幕与讲稿；internal/ 保存制作源和素材包
 ├── features/                         Gherkin 用例，每个功能域一份。生成：agent 按简报产出，QA 验收
 ├── steps/                            两个引擎的确定性 step 代码、判定逻辑与单测。生成：agent 产出，测试开发 review 并维护
 ├── deploy/                           worker 定制镜像的 Dockerfile 与构建推送脚本。维护：测试开发与部署方
+├── tools/demo/                       runbook 使用的缺陷注入与恢复工具。维护：演示者
 ├── CLAUDE.md、AGENTS.md              两种 agent 的项目入口，指向测试约定与 skill。维护：由 skill 安装命令追加提示行
 ├── pyproject.toml、uv.lock           Python 侧单测的依赖
 ├── package.json、package-lock.json   TypeScript 侧单测的依赖
@@ -62,6 +73,8 @@ npm install && npm run test:steps                                    # TypeScrip
 ```
 
 演示流程（30 分钟时间线）见 [docs/demo-runbook.md](./docs/demo-runbook.md)。
+
+产品价值与方法的 [Deck、讲解视频和配套资料](https://github.com/zhiyanliu/gherkai/blob/HEAD/docs/presentations/README.md) 由 gherkai 主仓库维护。本仓库集中维护与示例应用、用例和 runbook 对应的[完整 Demo 资料](./docs/presentations/demo/README.md)。
 
 ## 许可证
 
